@@ -8,6 +8,106 @@ import (
 )
 
 func TestServerMessagesBuildRequestAndParseResponse(t *testing.T) {
+	t.Run("hello1", func(t *testing.T) {
+		msg := NewHello1()
+		raw := mustBuildRequest(t, msg)
+		header := readReqHeader(t, raw)
+		if header.Method != KMSG_CMD1 {
+			t.Fatalf("unexpected method: %#x", header.Method)
+		}
+
+		buf := new(bytes.Buffer)
+		if err := binary.Write(buf, binary.LittleEndian, uint8(0)); err != nil {
+			t.Fatal(err)
+		}
+		if err := binary.Write(buf, binary.LittleEndian, uint16(2026)); err != nil {
+			t.Fatal(err)
+		}
+		buf.Write([]byte{11, 4, 30, 9, 0, 15})
+		buf.Write(make([]byte, 16))
+		buf.Write(make([]byte, 16))
+		buf.WriteByte(7)
+		if err := binary.Write(buf, binary.LittleEndian, uint32(20260411)); err != nil {
+			t.Fatal(err)
+		}
+		if err := binary.Write(buf, binary.LittleEndian, uint16(1)); err != nil {
+			t.Fatal(err)
+		}
+		if err := binary.Write(buf, binary.LittleEndian, uint16(2)); err != nil {
+			t.Fatal(err)
+		}
+		if err := binary.Write(buf, binary.LittleEndian, uint32(20260412)); err != nil {
+			t.Fatal(err)
+		}
+		if err := binary.Write(buf, binary.LittleEndian, uint16(3)); err != nil {
+			t.Fatal(err)
+		}
+		if err := binary.Write(buf, binary.LittleEndian, uint16(4)); err != nil {
+			t.Fatal(err)
+		}
+		if err := binary.Write(buf, binary.LittleEndian, uint16(5)); err != nil {
+			t.Fatal(err)
+		}
+		if err := binary.Write(buf, binary.LittleEndian, uint16(6)); err != nil {
+			t.Fatal(err)
+		}
+		buf.Write(make([]byte, 5))
+		serverName := make([]byte, 22)
+		copy(serverName, "main-server")
+		buf.Write(serverName)
+		website := make([]byte, 64)
+		copy(website, "https://example.com")
+		buf.Write(website)
+		buf.Write(make([]byte, 6))
+		category := make([]byte, 30)
+		copy(category, "quotes")
+		buf.Write(category)
+
+		if err := msg.ParseResponse(&RespHeader{}, buf.Bytes()); err != nil {
+			t.Fatalf("parse response failed: %v", err)
+		}
+		reply := msg.Response()
+		if reply.DateTime != "2026-04-11 09:30:15" || reply.ServerName != "main-server" || reply.Website != "https://example.com" || reply.Category != "quotes" {
+			t.Fatalf("unexpected hello1 reply: %+v", reply)
+		}
+	})
+
+	t.Run("hello2", func(t *testing.T) {
+		msg := NewHello2()
+		raw := mustBuildRequest(t, msg)
+		header := readReqHeader(t, raw)
+		if header.Method != KMSG_CMD2 {
+			t.Fatalf("unexpected method: %#x", header.Method)
+		}
+
+		buf := new(bytes.Buffer)
+		if err := binary.Write(buf, binary.LittleEndian, uint8(1)); err != nil {
+			t.Fatal(err)
+		}
+		if err := binary.Write(buf, binary.LittleEndian, uint16(7)); err != nil {
+			t.Fatal(err)
+		}
+		tips := make([]byte, 50)
+		copy(tips, "Upgrade tips")
+		buf.Write(tips)
+		buf.Write([]byte{0xaa, 0xbb, 0xcc, 0xdd, 0xee})
+		link := make([]byte, 120)
+		copy(link, "https://example.com/upgrade.zip")
+		buf.Write(link)
+		buf.WriteString("please upgrade soon")
+
+		if err := msg.ParseResponse(&RespHeader{}, buf.Bytes()); err != nil {
+			t.Fatalf("parse response failed: %v", err)
+		}
+		reply := msg.Response()
+		if reply.Had != 1 || reply.Unknown2 != 7 || reply.Tips != "Upgrade tips" || reply.Link != "https://example.com/upgrade.zip" || reply.Msg != "please upgrade soon" {
+			t.Fatalf("unexpected hello2 reply: %+v", reply)
+		}
+		if reply.Unknown5Hex != "aabbccddee" {
+			t.Fatalf("unexpected hello2 unknown5 hex: %s", reply.Unknown5Hex)
+		}
+	})
+
 	t.Run("heartbeat", func(t *testing.T) {
 		msg := NewHeartBeat()
 		raw := mustBuildRequest(t, msg)
@@ -84,6 +184,9 @@ func TestServerMessagesBuildRequestAndParseResponse(t *testing.T) {
 		if reply.TimeNow != "2026-04-11 09:30:15" || reply.Region != 88 || reply.MaybeSwitch != 1 {
 			t.Fatalf("unexpected info metadata: %+v", reply)
 		}
+		if reply.Unknown1 != [3]string{"0", "0", "0000000000000000"} || reply.Unknown2 != [3]string{"0", "0", "000000000000"} || reply.Unknown3 != [3]uint16{88, 0, 1} {
+			t.Fatalf("unexpected info unknown groups: %+v", reply)
+		}
 	})
 }
 
@@ -118,10 +221,10 @@ func TestGetSecurityListOldBuildRequestAndParseResponse(t *testing.T) {
 	if err := binary.Write(buf, binary.LittleEndian, name); err != nil {
 		t.Fatal(err)
 	}
-	if err := binary.Write(buf, binary.LittleEndian, uint16(0)); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, uint16(77)); err != nil {
 		t.Fatal(err)
 	}
-	if err := binary.Write(buf, binary.LittleEndian, uint16(0)); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, uint16(88)); err != nil {
 		t.Fatal(err)
 	}
 	if err := buf.WriteByte(2); err != nil {
@@ -143,6 +246,92 @@ func TestGetSecurityListOldBuildRequestAndParseResponse(t *testing.T) {
 	item := msg.Response().List[0]
 	if item.Code != "600000" || item.Name != "TEST" || item.DecimalPoint != 2 || math.Abs(item.PreClose-12.34) > 0.001 {
 		t.Fatalf("unexpected item: %+v", item)
+	}
+	if item.LegacyUnknown1 != 77 || item.Unknown1 != 77 || item.Unknown2 != 7 || item.Unknown3 != 8 {
+		t.Fatalf("unexpected old-list unknowns: %+v", item)
+	}
+}
+
+func TestGetTransactionDataBuildRequestAndParseResponse(t *testing.T) {
+	msg := NewGetTransactionData(&GetTransactionDataRequest{
+		Market: 1,
+		Code:   [6]byte{'6', '0', '0', '0', '0', '0'},
+		Start:  0,
+		Count:  1,
+	})
+
+	raw := mustBuildRequest(t, msg)
+	header := readReqHeader(t, raw)
+	if header.Method != KMSG_TRANSACTIONDATA {
+		t.Fatalf("unexpected method: %#x", header.Method)
+	}
+
+	buf := new(bytes.Buffer)
+	if err := binary.Write(buf, binary.LittleEndian, uint16(1)); err != nil {
+		t.Fatal(err)
+	}
+	if err := binary.Write(buf, binary.LittleEndian, uint16(570)); err != nil {
+		t.Fatal(err)
+	}
+	buf.Write(encodePrice(1234))
+	buf.Write(encodePrice(100))
+	buf.Write(encodePrice(3))
+	buf.Write(encodePrice(1))
+	buf.Write(encodePrice(9))
+
+	if err := msg.ParseResponse(&RespHeader{}, buf.Bytes()); err != nil {
+		t.Fatalf("parse response failed: %v", err)
+	}
+	reply := msg.Response()
+	if reply.Count != 1 || len(reply.List) != 1 {
+		t.Fatalf("unexpected reply: %+v", reply)
+	}
+	item := reply.List[0]
+	if item.Time != "09:30" || item.Action != "SELL" || item.Trans != 3 || item.Num != 3 || item.Unknown != 9 || math.Abs(item.Price-12.34) > 0.001 {
+		t.Fatalf("unexpected transaction item: %+v", item)
+	}
+}
+
+func TestGetHistoryTransactionDataBuildRequestAndParseResponse(t *testing.T) {
+	msg := NewGetHistoryTransactionData(&GetHistoryTransactionDataRequest{
+		Date:   20260411,
+		Market: 1,
+		Code:   [6]byte{'6', '0', '0', '0', '0', '0'},
+		Start:  0,
+		Count:  1,
+	})
+
+	raw := mustBuildRequest(t, msg)
+	header := readReqHeader(t, raw)
+	if header.Method != KMSG_HISTORYTRANSACTIONDATA {
+		t.Fatalf("unexpected method: %#x", header.Method)
+	}
+
+	buf := new(bytes.Buffer)
+	if err := binary.Write(buf, binary.LittleEndian, uint16(1)); err != nil {
+		t.Fatal(err)
+	}
+	if err := binary.Write(buf, binary.LittleEndian, math.Float32bits(12.3)); err != nil {
+		t.Fatal(err)
+	}
+	if err := binary.Write(buf, binary.LittleEndian, uint16(570)); err != nil {
+		t.Fatal(err)
+	}
+	buf.Write(encodePrice(1234))
+	buf.Write(encodePrice(100))
+	buf.Write(encodePrice(2))
+	buf.Write(encodePrice(7))
+
+	if err := msg.ParseResponse(&RespHeader{}, buf.Bytes()); err != nil {
+		t.Fatalf("parse response failed: %v", err)
+	}
+	reply := msg.Response()
+	if reply.Count != 1 || len(reply.List) != 1 {
+		t.Fatalf("unexpected reply: %+v", reply)
+	}
+	item := reply.List[0]
+	if item.Time != "09:30" || item.Action != "NEUTRAL" || item.Unknown != 7 || item.BuyOrSell != 2 || math.Abs(item.Price-12.34) > 0.001 {
+		t.Fatalf("unexpected history transaction item: %+v", item)
 	}
 }
 

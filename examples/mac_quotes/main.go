@@ -12,6 +12,8 @@ func main() {
 	defer client.Disconnect()
 
 	reply, err := client.MACQuotes(gotdx.MarketSZ, "000001")
+	// 指定日期可改为:
+	// reply, err := client.MACQuotesWithDate(gotdx.MarketSZ, "000001", 20260418)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -117,6 +117,116 @@ func TestExGetCountParseResponse(t *testing.T) {
 	}
 }
 
+func TestExLoginBuildRequestAndParseResponse(t *testing.T) {
+	msg := NewExLogin()
+
+	raw := mustBuildRequest(t, msg)
+	header := readExReqHeader(t, raw)
+	if header.Head != 0x01 || binary.LittleEndian.Uint16(raw[10:12]) != KMSG_EXLOGIN {
+		t.Fatalf("unexpected ex request header: head=%#x method=%#x", header.Head, binary.LittleEndian.Uint16(raw[10:12]))
+	}
+
+	payload := make([]byte, 299)
+	binary.LittleEndian.PutUint16(payload[53:55], 2026)
+	payload[55] = 4
+	payload[56] = 30
+	payload[57] = 15
+	payload[58] = 9
+	payload[60] = 5
+	copy(payload[61:82], []byte("ex-login"))
+	binary.LittleEndian.PutUint32(payload[82:86], math.Float32bits(1.5))
+	payload[86] = 2
+	binary.LittleEndian.PutUint16(payload[87:89], 3)
+	binary.LittleEndian.PutUint16(payload[89:91], 4)
+	binary.LittleEndian.PutUint16(payload[91:93], 5)
+	copy(payload[93:244], []byte("extended server"))
+	payload[244] = 6
+	payload[245] = 7
+	payload[246] = 8
+	copy(payload[247:299], []byte("1.2.3.4"))
+
+	if err := msg.ParseResponse(&RespHeader{}, payload); err != nil {
+		t.Fatalf("parse response failed: %v", err)
+	}
+	reply := msg.Response()
+	if reply.DateTime != "2026-04-30 09:15:05" || reply.ServerName != "ex-login" || reply.Desc != "extended server" || reply.IP != "1.2.3.4" {
+		t.Fatalf("unexpected ex login reply: %+v", reply)
+	}
+	if len(reply.Unknown) != 8 || reply.Unknown[0] != "1.5" || reply.Unknown[7] != "8" {
+		t.Fatalf("unexpected ex login unknowns: %+v", reply.Unknown)
+	}
+}
+
+func TestExServerInfoBuildRequestAndParseResponse(t *testing.T) {
+	msg := NewExServerInfo()
+
+	raw := mustBuildRequest(t, msg)
+	header := readExReqHeader(t, raw)
+	if header.Head != 0x01 || binary.LittleEndian.Uint16(raw[10:12]) != KMSG_EXSERVERINFO {
+		t.Fatalf("unexpected ex request header: head=%#x method=%#x", header.Head, binary.LittleEndian.Uint16(raw[10:12]))
+	}
+
+	payload := make([]byte, 327)
+	binary.LittleEndian.PutUint32(payload[0:4], 123)
+	copy(payload[16:41], []byte("ex-info"))
+	copy(payload[41:70], []byte("v2.1"))
+	binary.LittleEndian.PutUint32(payload[80:84], 20260430)
+	binary.LittleEndian.PutUint32(payload[84:88], 93015)
+	copy(payload[117:130], []byte("sign-main"))
+	copy(payload[159:189], []byte("server-east"))
+	copy(payload[240:253], []byte("sign-backup"))
+
+	if err := msg.ParseResponse(&RespHeader{}, payload); err != nil {
+		t.Fatalf("parse response failed: %v", err)
+	}
+	reply := msg.Response()
+	if reply.Delay != 123 || reply.Info != "ex-info" || reply.Version != "v2.1" || reply.ServerSign != "sign-main" {
+		t.Fatalf("unexpected ex server info reply: %+v", reply)
+	}
+	if reply.TimeNow != "2026-04-30 09:30:15" || reply.ServerName != "server-east" || reply.Name != "server-east" || reply.ServerSign2 != "sign-backup" {
+		t.Fatalf("unexpected ex server info metadata: %+v", reply)
+	}
+}
+
+func TestExGetCategoryListBuildRequestAndParseResponse(t *testing.T) {
+	msg := NewExGetCategoryList()
+
+	raw := mustBuildRequest(t, msg)
+	header := readExReqHeader(t, raw)
+	if header.Head != 0x01 || binary.LittleEndian.Uint16(raw[10:12]) != KMSG_EXCATEGORYLIST {
+		t.Fatalf("unexpected ex request header: head=%#x method=%#x", header.Head, binary.LittleEndian.Uint16(raw[10:12]))
+	}
+
+	buf := new(bytes.Buffer)
+	if err := binary.Write(buf, binary.LittleEndian, uint16(1)); err != nil {
+		t.Fatal(err)
+	}
+	if err := buf.WriteByte(13); err != nil {
+		t.Fatal(err)
+	}
+	name := make([]byte, 32)
+	copy(name, "US Stocks")
+	buf.Write(name)
+	if err := buf.WriteByte(74); err != nil {
+		t.Fatal(err)
+	}
+	abbr := make([]byte, 30)
+	copy(abbr, "US")
+	buf.Write(abbr)
+
+	if err := msg.ParseResponse(&RespHeader{}, buf.Bytes()); err != nil {
+		t.Fatalf("parse response failed: %v", err)
+	}
+	reply := msg.Response()
+	if reply.Count != 1 || len(reply.List) != 1 {
+		t.Fatalf("unexpected ex category reply: %+v", reply)
+	}
+	item := reply.List[0]
+	if item.GoodsType != 13 || item.GoodsTypeName != "US" || item.Market != 13 || item.Name != "US Stocks" || item.Code != 74 || item.Abbr != "US" {
+		t.Fatalf("unexpected ex category item: %+v", item)
+	}
+}
+
 func TestExGetListBuildRequestAndParseResponse(t *testing.T) {
 	msg := NewExGetList(&ExGetListRequest{Start: 10, Count: 2})
 

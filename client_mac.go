@@ -7,15 +7,23 @@ import (
 )
 
 const (
-	DefaultMACBoardListCount         = 10000
-	DefaultMACBoardPageSize   uint16 = 150
-	DefaultMACBoardStockCount uint32 = 10000
-	DefaultMACBoardStockPage  uint8  = 80
-	DefaultMACSymbolBarsCount uint32 = 800
-	DefaultMACSymbolBarsPage  uint16 = 700
-	defaultMACBoardSortType   uint16 = 14
-	defaultMACBoardSortOrder  uint16 = 1
+	DefaultMACBoardListCount            = 10000
+	DefaultMACBoardPageSize      uint16 = 150
+	DefaultMACBoardStockCount    uint32 = 10000
+	DefaultMACBoardStockPage     uint8  = 80
+	DefaultMACSymbolBarsCount    uint32 = 800
+	DefaultMACSymbolBarsPage     uint16 = 700
+	DefaultMACTransactionsCount  uint32 = 1000
+	DefaultMACTransactionsPage   uint16 = 1000
+	DefaultMACAuctionCount       uint32 = 500
+	DefaultMACAuctionPage        uint32 = 500
+	DefaultMACMarketMonitorCount uint32 = 600
+	DefaultMACMarketMonitorPage  uint16 = 600
+	defaultMACBoardSortType      uint16 = 14
+	defaultMACBoardSortOrder     uint16 = 1
 )
+
+const maxMACMarketMonitorStart = uint32(^uint16(0))
 
 func (client *Client) ConnectMAC() error {
 	client.mu.Lock()
@@ -90,9 +98,125 @@ func (client *Client) GetMACBoardMembersQuotesDynamic(boardSymbol string, sortTy
 
 // GetMACQuotes 获取 MAC 单只标的快照与分时采样。
 func (client *Client) GetMACQuotes(market uint8, code string) (*proto.MACQuotesReply, error) {
-	obj := proto.NewMACQuotes(&proto.MACQuotesRequest{
+	return client.GetMACQuotesWithDate(market, code, 0)
+}
+
+// GetMACSymbolQuotes 获取 MAC 按位图批量股票报价。
+func (client *Client) GetMACSymbolQuotes(markets []uint8, codes []string, fieldBitmap [20]byte) (*proto.MACSymbolQuotesReply, error) {
+	if len(markets) != len(codes) {
+		return nil, ErrMarketCodeCount
+	}
+	stocks := make([]proto.MACSymbolQuoteStock, 0, len(markets))
+	for i, market := range markets {
+		stocks = append(stocks, proto.MACSymbolQuoteStock{
+			Market: uint16(market),
+			Code:   makeMACCode22Client(codes[i]),
+		})
+	}
+	obj := proto.NewMACSymbolQuotes(&proto.MACSymbolQuotesRequest{
+		FieldBitmap: fieldBitmap,
+		Stocks:      stocks,
+	})
+	return executeProtocol(client, obj)
+}
+
+// GetMACQuotesWithDate 获取 MAC 单只标的快照与分时采样，并可指定查询日期。
+func (client *Client) GetMACQuotesWithDate(market uint8, code string, queryDate uint32) (*proto.MACQuotesReply, error) {
+	req := &proto.MACQuotesRequest{
 		Market: uint16(market),
 		Code:   makeMACCode22Client(code),
+	}
+	if queryDate != 0 {
+		req.Zero1 = uint16(queryDate & 0xffff)
+		req.Zero2 = uint16(queryDate >> 16)
+	}
+	obj := proto.NewMACQuotes(req)
+	return executeProtocol(client, obj)
+}
+
+// GetMACTransactions 获取 MAC 分时成交。
+func (client *Client) GetMACTransactions(market uint8, code string, start uint32, count uint16) (*proto.MACTransactionsReply, error) {
+	return client.GetMACTransactionsWithDate(market, code, start, count, 0)
+}
+
+// GetMACFileList 获取 MAC 文件列表/元信息。
+func (client *Client) GetMACFileList(filename string, offset uint32) (*proto.MACFileListReply, error) {
+	obj := proto.NewMACFileList(&proto.MACFileListRequest{
+		Offset:   offset,
+		Filename: makeMACFilename70(filename),
+	})
+	return executeProtocol(client, obj)
+}
+
+// GetMACFileDownload 下载 MAC 文件片段。
+func (client *Client) GetMACFileDownload(filename string, index uint32, offset uint32, size uint32) (*proto.MACFileDownloadReply, error) {
+	obj := proto.NewMACFileDownload(&proto.MACFileDownloadRequest{
+		Index:    index,
+		Offset:   offset,
+		Size:     size,
+		Filename: makeMACFilename70(filename),
+	})
+	return executeProtocol(client, obj)
+}
+
+// GetMACCapitalFlow 获取 MAC 资金流向。
+func (client *Client) GetMACCapitalFlow(market uint8, code string) (*proto.MACCapitalFlowReply, error) {
+	obj := proto.NewMACCapitalFlow(&proto.MACCapitalFlowRequest{
+		Market: uint16(market),
+		Symbol: makeMACCode8Client(code),
+	})
+	return executeProtocol(client, obj)
+}
+
+// GetMACTransactionsWithDate 获取 MAC 分时成交，并可指定查询日期。
+func (client *Client) GetMACTransactionsWithDate(market uint8, code string, start uint32, count uint16, queryDate uint32) (*proto.MACTransactionsReply, error) {
+	obj := proto.NewMACTransactions(&proto.MACTransactionsRequest{
+		Market:    uint16(market),
+		Code:      makeMACCode22Client(code),
+		QueryDate: queryDate,
+		Start:     start,
+		Count:     count,
+	})
+	return executeProtocol(client, obj)
+}
+
+// GetMACAuction 获取 MAC 竞价数据。
+func (client *Client) GetMACAuction(market uint8, code string, start uint32, count uint32) (*proto.MACAuctionReply, error) {
+	obj := proto.NewMACAuction(&proto.MACAuctionRequest{
+		Market: uint16(market),
+		Code:   makeMACCode22Client(code),
+		Start:  start,
+		Count:  count,
+	})
+	return executeProtocol(client, obj)
+}
+
+// GetMACTickCharts 获取 MAC 多日分时。
+func (client *Client) GetMACTickCharts(market uint8, code string, queryDate uint32, days uint16) (*proto.MACTickChartsReply, error) {
+	obj := proto.NewMACTickCharts(&proto.MACTickChartsRequest{
+		Market:    uint16(market),
+		Code:      makeMACCode22Client(code),
+		QueryDate: queryDate,
+		Days:      days,
+	})
+	return executeProtocol(client, obj)
+}
+
+// GetMACSymbolInfo 获取 MAC 股票摘要。
+func (client *Client) GetMACSymbolInfo(market uint8, code string) (*proto.MACSymbolInfoReply, error) {
+	obj := proto.NewMACSymbolInfo(&proto.MACSymbolInfoRequest{
+		Market: uint16(market),
+		Code:   makeMACCode22Client(code),
+	})
+	return executeProtocol(client, obj)
+}
+
+// GetMACMarketMonitor 获取 MAC 市场监控数据。
+func (client *Client) GetMACMarketMonitor(market uint8, start uint16, count uint16) (*proto.MACMarketMonitorReply, error) {
+	obj := proto.NewMACMarketMonitor(&proto.MACMarketMonitorRequest{
+		Market: uint16(market),
+		Start:  start,
+		Count:  count,
 	})
 	return executeProtocol(client, obj)
 }
@@ -296,10 +420,202 @@ func (client *Client) MACSymbolBelongBoard(symbol string, market uint8) ([]proto
 
 // MACQuotes 获取 MAC 行情快照与分时采样。
 func (client *Client) MACQuotes(market uint8, code string) (*proto.MACQuotesReply, error) {
+	return client.MACQuotesWithDate(market, code, 0)
+}
+
+// MACSymbolQuotes 获取 MAC 按位图批量股票报价。
+func (client *Client) MACSymbolQuotes(markets []uint8, codes []string, fieldBitmap [20]byte) (*proto.MACSymbolQuotesReply, error) {
 	if err := client.ConnectMAC(); err != nil {
 		return nil, err
 	}
-	return client.GetMACQuotes(market, code)
+	return client.GetMACSymbolQuotes(markets, codes, fieldBitmap)
+}
+
+// MACQuotesWithDate 获取 MAC 行情快照与分时采样，并可指定查询日期。
+func (client *Client) MACQuotesWithDate(market uint8, code string, queryDate uint32) (*proto.MACQuotesReply, error) {
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+	return client.GetMACQuotesWithDate(market, code, queryDate)
+}
+
+// MACTransactions 获取 MAC 分时成交。
+func (client *Client) MACTransactions(market uint8, code string, start uint32, count uint32) ([]proto.MACTransactionItem, error) {
+	return client.MACTransactionsWithDate(market, code, start, count, 0)
+}
+
+// MACFileList 获取 MAC 文件列表/元信息。
+func (client *Client) MACFileList(filename string, offset uint32) (*proto.MACFileListReply, error) {
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+	return client.GetMACFileList(filename, offset)
+}
+
+// MACDownloadFullFile 下载完整 MAC 文件。
+func (client *Client) MACDownloadFullFile(filename string, index uint32, size uint32) ([]byte, error) {
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+	if index == 0 {
+		index = 1
+	}
+	if size == 0 {
+		meta, err := client.GetMACFileList(filename, 0)
+		if err == nil {
+			size = meta.Size
+		}
+	}
+
+	var result []byte
+	var downloaded uint32
+	for {
+		reply, err := client.GetMACFileDownload(filename, index, downloaded, DefaultDownloadSize)
+		if err != nil {
+			return nil, err
+		}
+		if reply.Size == 0 {
+			break
+		}
+		result = append(result, reply.Data...)
+		downloaded += reply.Size
+		if size != 0 && downloaded >= size {
+			break
+		}
+	}
+	return result, nil
+}
+
+// MACCapitalFlow 获取 MAC 资金流向。
+func (client *Client) MACCapitalFlow(market uint8, code string) (*proto.MACCapitalFlowReply, error) {
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+	return client.GetMACCapitalFlow(market, code)
+}
+
+// MACTransactionsWithDate 获取 MAC 分时成交，并可指定查询日期。
+func (client *Client) MACTransactionsWithDate(market uint8, code string, start uint32, count uint32, queryDate uint32) ([]proto.MACTransactionItem, error) {
+	if count == 0 {
+		count = DefaultMACTransactionsCount
+	}
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+
+	result := make([]proto.MACTransactionItem, 0)
+	currentStart := start
+	remaining := count
+	for remaining > 0 {
+		pageSize := DefaultMACTransactionsPage
+		if remaining < uint32(pageSize) {
+			pageSize = uint16(remaining)
+		}
+		reply, err := client.GetMACTransactionsWithDate(market, code, currentStart, pageSize, queryDate)
+		if err != nil {
+			return nil, err
+		}
+		if len(reply.List) == 0 {
+			break
+		}
+		result = append(result, reply.List...)
+		if uint32(len(reply.List)) < uint32(pageSize) {
+			break
+		}
+		currentStart += uint32(pageSize)
+		remaining -= uint32(pageSize)
+	}
+	return result, nil
+}
+
+// MACAuction 获取 MAC 竞价数据。
+func (client *Client) MACAuction(market uint8, code string, start uint32, count uint32) ([]proto.MACAuctionItem, error) {
+	if count == 0 {
+		count = DefaultMACAuctionCount
+	}
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+
+	result := make([]proto.MACAuctionItem, 0)
+	currentStart := start
+	remaining := count
+	for remaining > 0 {
+		pageSize := DefaultMACAuctionPage
+		if remaining < pageSize {
+			pageSize = remaining
+		}
+		reply, err := client.GetMACAuction(market, code, currentStart, pageSize)
+		if err != nil {
+			return nil, err
+		}
+		if len(reply.List) == 0 {
+			break
+		}
+		result = append(result, reply.List...)
+		if uint32(len(reply.List)) < pageSize {
+			break
+		}
+		currentStart += pageSize
+		remaining -= pageSize
+	}
+	return result, nil
+}
+
+// MACTickCharts 获取 MAC 多日分时。
+func (client *Client) MACTickCharts(market uint8, code string, queryDate uint32, days uint16) (*proto.MACTickChartsReply, error) {
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+	return client.GetMACTickCharts(market, code, queryDate, days)
+}
+
+// MACSymbolInfo 获取 MAC 股票摘要。
+func (client *Client) MACSymbolInfo(market uint8, code string) (*proto.MACSymbolInfoReply, error) {
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+	return client.GetMACSymbolInfo(market, code)
+}
+
+// MACMarketMonitor 获取 MAC 市场监控数据，支持自动分页。
+func (client *Client) MACMarketMonitor(market uint8, start uint32, count uint32) ([]proto.MACMarketMonitorItem, error) {
+	if count == 0 {
+		count = DefaultMACMarketMonitorCount
+	}
+	if start > maxMACMarketMonitorStart {
+		return nil, fmt.Errorf("mac market monitor start exceeds uint16: %d", start)
+	}
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+
+	result := make([]proto.MACMarketMonitorItem, 0)
+	currentStart := start
+	remaining := count
+	for remaining > 0 {
+		if currentStart > maxMACMarketMonitorStart {
+			return nil, fmt.Errorf("mac market monitor start exceeds uint16: %d", currentStart)
+		}
+		pageSize := DefaultMACMarketMonitorPage
+		if remaining < uint32(pageSize) {
+			pageSize = uint16(remaining)
+		}
+		reply, err := client.GetMACMarketMonitor(market, uint16(currentStart), pageSize)
+		if err != nil {
+			return nil, err
+		}
+		if len(reply.List) == 0 {
+			break
+		}
+		result = append(result, reply.List...)
+		if uint32(len(reply.List)) < uint32(pageSize) {
+			break
+		}
+		currentStart += uint32(pageSize)
+		remaining -= uint32(pageSize)
+	}
+	return result, nil
 }
 
 func (client *Client) MACSymbolBars(market uint8, code string, period uint16, times uint16, start uint32, count uint32, adjust uint16) ([]proto.MACSymbolBar, error) {
@@ -344,6 +660,12 @@ func makeMACCode8Client(code string) [8]byte {
 func makeMACCode22Client(code string) [22]byte {
 	var out [22]byte
 	copy(out[:], code)
+	return out
+}
+
+func makeMACFilename70(filename string) [70]byte {
+	var out [70]byte
+	copy(out[:], filename)
 	return out
 }
 

@@ -59,10 +59,12 @@ type ExGetCategoryListReply struct {
 }
 
 type ExCategoryItem struct {
-	Market uint8
-	Name   string
-	Code   uint8
-	Abbr   string
+	GoodsType     uint8
+	GoodsTypeName string
+	Market        uint8
+	Name          string
+	Code          uint8
+	Abbr          string
 }
 
 func NewExGetCategoryList() *ExGetCategoryList {
@@ -94,11 +96,14 @@ func (obj *ExGetCategoryList) ParseResponse(header *RespHeader, data []byte) err
 		if base+64 > len(data) {
 			return fmt.Errorf("invalid ex category list item %d", i)
 		}
+		goodsType := data[base]
 		obj.reply.List = append(obj.reply.List, ExCategoryItem{
-			Market: data[base],
-			Name:   Utf8ToGbk(data[base+1 : base+33]),
-			Code:   data[base+33],
-			Abbr:   Utf8ToGbk(data[base+34 : base+64]),
+			GoodsType:     goodsType,
+			GoodsTypeName: exGoodsTypeName(goodsType),
+			Market:        goodsType,
+			Name:          Utf8ToGbk(data[base+1 : base+33]),
+			Code:          data[base+33],
+			Abbr:          Utf8ToGbk(data[base+34 : base+64]),
 		})
 	}
 	return nil

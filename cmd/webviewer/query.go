@@ -754,6 +754,18 @@ var methodDefs = []methodDef{
 		},
 	},
 	{
+		Key:         "mac_symbol_quotes",
+		Label:       "MAC 批量报价实验",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "按位图动态解析 MAC 批量股票报价。",
+		Params: []methodParam{
+			{Key: "markets", Label: "市场列表", Type: "text", Default: "0,1"},
+			{Key: "codes", Label: "代码列表", Type: "text", Default: "000001,600000"},
+			{Key: "field_bitmap", Label: "字段位图", Type: "text", Default: "", Help: "留空/default=默认位图，full=20字节全1，或填写40位hex"},
+		},
+	},
+	{
 		Key:         "mac_quotes",
 		Label:       "MAC 行情快照",
 		Group:       "MAC 协议",
@@ -762,6 +774,105 @@ var methodDefs = []methodDef{
 		Params: []methodParam{
 			{Key: "market", Label: "市场", Type: "number", Default: "0"},
 			{Key: "code", Label: "代码", Type: "text", Default: "000001"},
+			{Key: "query_date", Label: "查询日期", Type: "number", Default: "0", Help: "0=实时，YYYYMMDD=指定日期"},
+		},
+	},
+	{
+		Key:         "mac_capital_flow",
+		Label:       "MAC 资金流向",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC 主站资金流向，来自 0x1218 head=2 新协议。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "0"},
+			{Key: "code", Label: "代码", Type: "text", Default: "000001"},
+		},
+	},
+	{
+		Key:         "mac_file_list",
+		Label:       "MAC 文件信息",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC 文件列表/元信息查询。",
+		Params: []methodParam{
+			{Key: "filename", Label: "文件名", Type: "text", Default: "StockInfo.dat"},
+			{Key: "offset", Label: "偏移", Type: "number", Default: "0"},
+		},
+	},
+	{
+		Key:         "mac_file_download",
+		Label:       "MAC 文件下载",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC 文件片段下载。",
+		Params: []methodParam{
+			{Key: "filename", Label: "文件名", Type: "text", Default: "StockInfo.dat"},
+			{Key: "index", Label: "索引", Type: "number", Default: "1"},
+			{Key: "offset", Label: "偏移", Type: "number", Default: "0"},
+			{Key: "size", Label: "大小", Type: "number", Default: "512"},
+		},
+	},
+	{
+		Key:         "mac_transactions",
+		Label:       "MAC 分时成交",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC 主站逐笔成交，支持指定日期与自动分页。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "0"},
+			{Key: "code", Label: "代码", Type: "text", Default: "000001"},
+			{Key: "start", Label: "起始", Type: "number", Default: "0"},
+			{Key: "count", Label: "总量", Type: "number", Default: "20", Help: "单次最多 1000，超出会自动分页"},
+			{Key: "query_date", Label: "查询日期", Type: "number", Default: "0", Help: "0=实时，YYYYMMDD=指定日期"},
+		},
+	},
+	{
+		Key:         "mac_auction",
+		Label:       "MAC 竞价",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC 主站竞价明细。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "0"},
+			{Key: "code", Label: "代码", Type: "text", Default: "000001"},
+			{Key: "start", Label: "起始", Type: "number", Default: "0"},
+			{Key: "count", Label: "总量", Type: "number", Default: "20", Help: "单次最多 500，超出会自动分页"},
+		},
+	},
+	{
+		Key:         "mac_tick_charts",
+		Label:       "MAC 多日分时",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC 主站多日分时，返回按日期分组的分时点与最新摘要。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "0"},
+			{Key: "code", Label: "代码", Type: "text", Default: "000001"},
+			{Key: "query_date", Label: "起始日期", Type: "number", Default: "0", Help: "0=服务端默认，YYYYMMDD=指定起始日期"},
+			{Key: "days", Label: "天数", Type: "number", Default: "5"},
+		},
+	},
+	{
+		Key:         "mac_symbol_info",
+		Label:       "MAC 股票摘要",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC 主站单只股票摘要，包含活跃度、内外盘、VR 等字段。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "0"},
+			{Key: "code", Label: "代码", Type: "text", Default: "000001"},
+		},
+	},
+	{
+		Key:         "mac_market_monitor",
+		Label:       "MAC 市场监控",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC 主站市场监控/异动列表，附带名称与原始 v1-v4 字段。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "0"},
+			{Key: "start", Label: "起始", Type: "number", Default: "0"},
+			{Key: "count", Label: "总量", Type: "number", Default: "20", Help: "单次最多 600，超出会自动分页"},
 		},
 	},
 	{
@@ -821,6 +932,7 @@ var methodDefs = []methodDef{
 		Params: []methodParam{
 			{Key: "market", Label: "分类", Type: "number", Default: "74"},
 			{Key: "code", Label: "代码", Type: "text", Default: "TSLA"},
+			{Key: "query_date", Label: "查询日期", Type: "number", Default: "0", Help: "0=实时，YYYYMMDD=指定日期"},
 		},
 	},
 	{
@@ -2172,7 +2284,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 				return queryPayload{}, err
 			}
 			return queryPayload{
-				columns: []string{"market", "code", "name", "abbr"},
+				columns: []string{"goods_type", "code", "name", "abbr"},
 				rows:    rowsFromExCategoryList(reply.List),
 				raw:     reply,
 			}, nil
@@ -2242,7 +2354,10 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 			{"login_time", login.DateTime},
 			{"login_server", login.ServerName},
 			{"login_ip", login.IP},
+			{"login_unknown", strings.Join(login.Unknown, ",")},
 			{"server_name", info.ServerName},
+			{"server_sign", info.ServerSign},
+			{"server_sign2", info.ServerSign2},
 			{"version", info.Version},
 			{"delay", fmt.Sprintf("%d", info.Delay)},
 			{"time_now", info.TimeNow},
@@ -2835,10 +2950,14 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		if err != nil {
 			return queryPayload{}, nil, err
 		}
+		queryDate, err := parseUint32Value(params, "query_date", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
 		code := valueOrDefault(params, "code", "000001")
-		request := map[string]any{"market": market, "code": code}
+		request := map[string]any{"market": market, "code": code, "query_date": queryDate}
 		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
-			reply, err := client.MACQuotes(market, code)
+			reply, err := client.MACQuotesWithDate(market, code, queryDate)
 			if err != nil {
 				return queryPayload{}, err
 			}
@@ -2846,6 +2965,239 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 				columns: []string{"time", "price", "avg", "vol", "momentum"},
 				rows:    rowsFromMACQuoteChart(reply.ChartData),
 				raw:     reply,
+			}, nil
+		})
+		return payload, request, err
+	case "mac_symbol_quotes":
+		markets, err := parseUint8List(valueOrDefault(params, "markets", "0,1"))
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		codes := parseCodeList(valueOrDefault(params, "codes", "000001,600000"))
+		fieldBitmapText := valueOrDefault(params, "field_bitmap", "")
+		fieldBitmap, err := parseMACBoardMembersQuotesFieldBitmap(fieldBitmapText)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{
+			"markets":          markets,
+			"codes":            codes,
+			"field_bitmap":     fieldBitmapText,
+			"field_bitmap_hex": hex.EncodeToString(fieldBitmap[:]),
+		}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			reply, err := client.MACSymbolQuotes(markets, codes, fieldBitmap)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: columnsFromMACSymbolQuotes(reply),
+				rows:    rowsFromMACSymbolQuotes(reply),
+				raw: map[string]any{
+					"field_bitmap_hex": hex.EncodeToString(reply.FieldBitmap[:]),
+					"active_fields":    rowsFromMACDynamicFieldDefs(reply.ActiveFields),
+					"reply":            reply,
+				},
+				warning: "这是实验接口，字段命名以协议比对为主，未知字段可能继续调整。",
+			}, nil
+		})
+		return payload, request, err
+	case "mac_capital_flow":
+		market, err := parseUint8Value(params, "market", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "000001")
+		request := map[string]any{"market": market, "code": code}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			reply, err := client.MACCapitalFlow(market, code)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"market", "query_info", "ext", "today_main_in", "today_main_out", "today_retail_in", "today_retail_out", "today_main_net_in", "today_retail_net_in", "five_day_main_buy", "five_day_main_sell", "five_day_super_net", "five_day_large_net", "five_day_medium_net", "five_day_small_net", "five_day_main_net_in"},
+				rows:    rowsFromMACCapitalFlow(reply),
+				raw:     reply,
+			}, nil
+		})
+		return payload, request, err
+	case "mac_file_list":
+		filename := valueOrDefault(params, "filename", "StockInfo.dat")
+		offset, err := parseUint32Value(params, "offset", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"filename": filename, "offset": offset}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			reply, err := client.MACFileList(filename, offset)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"offset", "size", "flag", "hash"},
+				rows:    rowsFromMACFileList(reply),
+				raw:     reply,
+			}, nil
+		})
+		return payload, request, err
+	case "mac_file_download":
+		filename := valueOrDefault(params, "filename", "StockInfo.dat")
+		index, err := parseUint32Value(params, "index", 1)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		offset, err := parseUint32Value(params, "offset", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		size, err := parseUint32Value(params, "size", 512)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"filename": filename, "index": index, "offset": offset, "size": size}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			reply, err := client.GetMACFileDownload(filename, index, offset, size)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"field", "value"},
+				rows: [][]string{
+					{"index", fmt.Sprintf("%d", reply.Index)},
+					{"size", fmt.Sprintf("%d", reply.Size)},
+					{"data_len", fmt.Sprintf("%d", len(reply.Data))},
+				},
+				raw: rawFullFilePreview(reply.Data),
+			}, nil
+		})
+		return payload, request, err
+	case "mac_transactions":
+		market, err := parseUint8Value(params, "market", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "000001")
+		start, err := parseUint32Value(params, "start", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		count, err := parseUint32Value(params, "count", 20)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		queryDate, err := parseUint32Value(params, "query_date", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"market": market, "code": code, "start": start, "count": count, "query_date": queryDate}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			list, err := client.MACTransactionsWithDate(market, code, start, count, queryDate)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"time", "price", "vol", "trade_count", "action"},
+				rows:    rowsFromMACTransactions(list),
+				raw:     list,
+			}, nil
+		})
+		return payload, request, err
+	case "mac_auction":
+		market, err := parseUint8Value(params, "market", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "000001")
+		start, err := parseUint32Value(params, "start", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		count, err := parseUint32Value(params, "count", 20)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"market": market, "code": code, "start": start, "count": count}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			list, err := client.MACAuction(market, code, start, count)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"time", "price", "matched", "unmatched", "flag"},
+				rows:    rowsFromMACAuction(list),
+				raw:     list,
+			}, nil
+		})
+		return payload, request, err
+	case "mac_tick_charts":
+		market, err := parseUint8Value(params, "market", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "000001")
+		queryDate, err := parseUint32Value(params, "query_date", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		days, err := parseUint16Value(params, "days", 5)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"market": market, "code": code, "query_date": queryDate, "days": days}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			reply, err := client.MACTickCharts(market, code, queryDate, days)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"date", "pre_close", "time", "price", "avg", "vol", "unknown"},
+				rows:    rowsFromMACTickCharts(reply),
+				raw:     reply,
+			}, nil
+		})
+		return payload, request, err
+	case "mac_symbol_info":
+		market, err := parseUint8Value(params, "market", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "000001")
+		request := map[string]any{"market": market, "code": code}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			reply, err := client.MACSymbolInfo(market, code)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"market", "code", "name", "datetime", "activity", "pre_close", "open", "high", "low", "close", "momentum", "vol", "amount", "inside_volume", "outside_volume", "decimal", "unknown_a", "unknown_b", "unknown_c", "vr", "turnover", "avg"},
+				rows:    rowsFromMACSymbolInfo(reply),
+				raw:     reply,
+			}, nil
+		})
+		return payload, request, err
+	case "mac_market_monitor":
+		market, err := parseUint8Value(params, "market", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		start, err := parseUint32Value(params, "start", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		count, err := parseUint32Value(params, "count", 20)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"market": market, "start": start, "count": count}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			list, err := client.MACMarketMonitor(market, start, count)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"index", "market", "code", "name", "time", "desc", "value", "unusual_type", "v1", "v2", "v3", "v4"},
+				rows:    rowsFromMACMarketMonitor(list),
+				raw:     list,
 			}, nil
 		})
 		return payload, request, err
@@ -2969,10 +3321,14 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		if err != nil {
 			return queryPayload{}, nil, err
 		}
+		queryDate, err := parseUint32Value(params, "query_date", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
 		code := valueOrDefault(params, "code", "TSLA")
-		request := map[string]any{"market": market, "code": code}
+		request := map[string]any{"market": market, "code": code, "query_date": queryDate}
 		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
-			reply, err := client.MACQuotes(market, code)
+			reply, err := client.MACQuotesWithDate(market, code, queryDate)
 			if err != nil {
 				return queryPayload{}, err
 			}
@@ -3477,6 +3833,9 @@ func rowsFromServerInfo(item *proto.InfoReply) [][]string {
 		{"content", item.Content},
 		{"server_sign", item.ServerSign},
 		{"time_now", item.TimeNow},
+		{"unknown1", strings.Join(item.Unknown1[:], ",")},
+		{"unknown2", strings.Join(item.Unknown2[:], ",")},
+		{"unknown3", fmt.Sprintf("%d,%d,%d", item.Unknown3[0], item.Unknown3[1], item.Unknown3[2])},
 		{"region", fmt.Sprintf("%d", item.Region)},
 		{"switch", fmt.Sprintf("%d", item.MaybeSwitch)},
 	}
@@ -3694,8 +4053,12 @@ func rowsFromExQuotes(items []proto.ExQuoteItem) [][]string {
 func rowsFromExCategoryList(items []proto.ExCategoryItem) [][]string {
 	rows := make([][]string, 0, len(items))
 	for _, item := range items {
+		goodsType := fmt.Sprintf("%d", item.GoodsType)
+		if item.GoodsTypeName != "" {
+			goodsType = fmt.Sprintf("%d:%s", item.GoodsType, item.GoodsTypeName)
+		}
 		rows = append(rows, []string{
-			fmt.Sprintf("%d", item.Market),
+			goodsType,
 			fmt.Sprintf("%d", item.Code),
 			item.Name,
 			item.Abbr,
@@ -3941,6 +4304,36 @@ func rowsFromMACBoardMemberQuotesDynamic(reply *proto.MACBoardMembersQuotesDynam
 	return rows
 }
 
+func columnsFromMACSymbolQuotes(reply *proto.MACSymbolQuotesReply) []string {
+	if reply == nil {
+		return nil
+	}
+	columns := []string{"market", "symbol", "name"}
+	for _, field := range reply.ActiveFields {
+		columns = append(columns, field.Name)
+	}
+	return columns
+}
+
+func rowsFromMACSymbolQuotes(reply *proto.MACSymbolQuotesReply) [][]string {
+	if reply == nil {
+		return nil
+	}
+	rows := make([][]string, 0, len(reply.Stocks))
+	for _, item := range reply.Stocks {
+		row := []string{
+			fmt.Sprintf("%d", item.Market),
+			item.Symbol,
+			item.Name,
+		}
+		for _, field := range reply.ActiveFields {
+			row = append(row, formatAny(item.Values[field.Name]))
+		}
+		rows = append(rows, row)
+	}
+	return rows
+}
+
 func rowsFromMACDynamicFieldDefs(fields []proto.MACDynamicFieldDef) [][]string {
 	rows := make([][]string, 0, len(fields))
 	for _, field := range fields {
@@ -3963,6 +4356,142 @@ func rowsFromMACQuoteChart(items []proto.MACQuoteChartItem) [][]string {
 			formatFloat(item.Avg),
 			fmt.Sprintf("%d", item.Vol),
 			formatFloat(item.Momentum),
+		})
+	}
+	return rows
+}
+
+func rowsFromMACTransactions(items []proto.MACTransactionItem) [][]string {
+	rows := make([][]string, 0, len(items))
+	for _, item := range items {
+		rows = append(rows, []string{
+			item.Time,
+			formatFloat(item.Price),
+			fmt.Sprintf("%d", item.Vol),
+			fmt.Sprintf("%d", item.TradeCount),
+			fmt.Sprintf("%d", item.BuyOrSell),
+		})
+	}
+	return rows
+}
+
+func rowsFromMACCapitalFlow(reply *proto.MACCapitalFlowReply) [][]string {
+	if reply == nil {
+		return nil
+	}
+	return [][]string{{
+		fmt.Sprintf("%d", reply.Market),
+		reply.QueryInfo,
+		reply.Ext,
+		formatFloat(reply.TodayMainIn),
+		formatFloat(reply.TodayMainOut),
+		formatFloat(reply.TodayRetailIn),
+		formatFloat(reply.TodayRetailOut),
+		formatFloat(reply.TodayMainNetIn),
+		formatFloat(reply.TodayRetailNetIn),
+		formatFloat(reply.FiveDayMainBuy),
+		formatFloat(reply.FiveDayMainSell),
+		formatFloat(reply.FiveDaySuperNet),
+		formatFloat(reply.FiveDayLargeNet),
+		formatFloat(reply.FiveDayMediumNet),
+		formatFloat(reply.FiveDaySmallNet),
+		formatFloat(reply.FiveDayMainNetIn),
+	}}
+}
+
+func rowsFromMACFileList(reply *proto.MACFileListReply) [][]string {
+	if reply == nil {
+		return nil
+	}
+	return [][]string{{
+		fmt.Sprintf("%d", reply.Offset),
+		fmt.Sprintf("%d", reply.Size),
+		fmt.Sprintf("%d", reply.Flag),
+		reply.Hash,
+	}}
+}
+
+func rowsFromMACAuction(items []proto.MACAuctionItem) [][]string {
+	rows := make([][]string, 0, len(items))
+	for _, item := range items {
+		rows = append(rows, []string{
+			item.Time,
+			formatFloat(item.Price),
+			fmt.Sprintf("%d", item.Matched),
+			fmt.Sprintf("%d", item.Unmatched),
+			fmt.Sprintf("%d", item.Flag),
+		})
+	}
+	return rows
+}
+
+func rowsFromMACTickCharts(reply *proto.MACTickChartsReply) [][]string {
+	if reply == nil {
+		return nil
+	}
+	rows := make([][]string, 0)
+	for _, day := range reply.Charts {
+		for _, tick := range day.Ticks {
+			rows = append(rows, []string{
+				day.Date,
+				formatFloat(day.PreClose),
+				tick.Time,
+				formatFloat(tick.Price),
+				formatFloat(tick.Avg),
+				fmt.Sprintf("%d", tick.Vol),
+				fmt.Sprintf("%d", tick.Unknown),
+			})
+		}
+	}
+	return rows
+}
+
+func rowsFromMACSymbolInfo(reply *proto.MACSymbolInfoReply) [][]string {
+	if reply == nil {
+		return nil
+	}
+	return [][]string{{
+		fmt.Sprintf("%d", reply.Market),
+		reply.Code,
+		reply.Name,
+		reply.DateTime,
+		fmt.Sprintf("%d", reply.Activity),
+		formatFloat(reply.PreClose),
+		formatFloat(reply.Open),
+		formatFloat(reply.High),
+		formatFloat(reply.Low),
+		formatFloat(reply.Close),
+		formatFloat(reply.Momentum),
+		fmt.Sprintf("%d", reply.Vol),
+		formatFloat(reply.Amount),
+		fmt.Sprintf("%d", reply.InsideVolume),
+		fmt.Sprintf("%d", reply.OutsideVolume),
+		fmt.Sprintf("%d", reply.Decimal),
+		fmt.Sprintf("%d", reply.UnknownA),
+		formatFloat(reply.UnknownB),
+		fmt.Sprintf("%d", reply.UnknownC),
+		formatFloat(reply.VR),
+		formatFloat(reply.Turnover),
+		formatFloat(reply.Avg),
+	}}
+}
+
+func rowsFromMACMarketMonitor(items []proto.MACMarketMonitorItem) [][]string {
+	rows := make([][]string, 0, len(items))
+	for _, item := range items {
+		rows = append(rows, []string{
+			fmt.Sprintf("%d", item.Index),
+			fmt.Sprintf("%d", item.Market),
+			item.Code,
+			item.Name,
+			item.Time,
+			item.Desc,
+			item.Value,
+			fmt.Sprintf("%d", item.UnusualType),
+			fmt.Sprintf("%d", item.V1),
+			formatFloat(item.V2),
+			formatFloat(item.V3),
+			formatFloat(item.V4),
 		})
 	}
 	return rows

@@ -35,6 +35,8 @@ type HistoryTransactionData struct {
 	Vol       int     // 成交量。
 	Num       int     // 笔数或委托笔数。
 	BuyOrSell int     // 买卖方向标记。
+	Action    string  // 买卖方向，如 BUY/SELL/NEUTRAL。
+	Unknown   int     //  unknown 字段。
 }
 
 func NewGetHistoryTransactionData(req *GetHistoryTransactionDataRequest) *GetHistoryTransactionData {
@@ -96,7 +98,8 @@ func (obj *GetHistoryTransactionData) ParseResponse(header *RespHeader, data []b
 		priceraw := getprice(data, &pos)
 		ele.Vol = getprice(data, &pos)
 		ele.BuyOrSell = getprice(data, &pos)
-		getprice(data, &pos)
+		ele.Action = actionFromCode(ele.BuyOrSell)
+		ele.Unknown = getprice(data, &pos)
 
 		lastprice = lastprice + priceraw
 		ele.Price = float64(lastprice) / baseUnit(string(obj.request.Code[:]))

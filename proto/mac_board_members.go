@@ -136,41 +136,63 @@ type MACBoardMembersQuotesReply struct {
 }
 
 type MACBoardMemberQuoteItem struct {
-	Name         string
-	Market       uint16
-	Symbol       string
-	PreClose     float64
-	Open         float64
-	High         float64
-	Low          float64
-	Close        float64
-	Unknown6     float64
-	VolumeRatio  float64
-	Amount       float64
-	TotalShares  float64
-	FloatShares  float64
-	EPS          float64
-	ROE          float64
-	Unknown13    float64
-	MarketCap    float64
-	PEDynamic    float64
-	Zero16       float64
-	Zero17       float64
-	RiseSpeed    float64
-	CurrentVol   uint16
-	TurnoverRate float64
-	Unknown21    float64
-	Unknown22    float64
-	LimitUp      float64
-	LimitDown    float64
-	Zero25       float64
-	Unknown26    float64
-	Unknown27    float64
-	RiseSpeed2   float64
-	Zero29       float64
-	PEStatic     float64
-	PETTM        float64
-	Unknown31    float64
+	Name               string
+	Market             uint16
+	Symbol             string
+	PreClose           float64
+	Open               float64
+	High               float64
+	Low                float64
+	Close              float64
+	Unknown6           float64
+	Vol                uint32
+	VolumeRatio        float64
+	Amount             float64
+	TotalShares        float64
+	FloatShares        float64
+	EPS                float64
+	ROE                float64
+	NetAssets          float64
+	ActionPrice        float64
+	Unknown13          float64
+	UnknownActionPrice float64
+	MarketCap          float64
+	TotalMarketCapAB   float64
+	PEDynamic          float64
+	Zero16             float64
+	LotSizeInfo        uint32
+	Unknown23          float64
+	Zero17             float64
+	DividendYield      float64
+	RiseSpeed          float64
+	CurrentVol         uint16
+	LastVolume         uint32
+	Turnover           float64
+	TurnoverRate       float64
+	Unknown21          float64
+	SomeBitmap         uint32
+	Unknown22          float64
+	DecimalPoint       uint32
+	LimitUp            float64
+	BuyPriceLimit      float64
+	LimitDown          float64
+	SellPriceLimit     float64
+	Zero25             float64
+	Unknown34          uint32
+	Unknown26          float64
+	LotSize            uint32
+	LotSizeBoardSymbol string
+	Unknown27          float64
+	PreIPOV            float64
+	RiseSpeed2         float64
+	SpeedPct           float64
+	Zero29             float64
+	FlagKCB            uint32
+	KCBFlag            uint32
+	PEStatic           float64
+	PETTM              float64
+	Unknown31          float64
+	UnknownClosePrice  float64
 }
 
 func NewMACBoardMembersQuotes(req *MACBoardMembersQuotesRequest) *MACBoardMembersQuotes {
@@ -268,52 +290,64 @@ func (obj *MACBoardMembersQuotes) ParseResponse(header *RespHeader, data []byte)
 		floatAt := func(index int) float64 {
 			return float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[index*4 : index*4+4])))
 		}
+		uintAt := func(index int) uint32 {
+			return binary.LittleEndian.Uint32(metrics[index*4 : index*4+4])
+		}
 
 		item.PreClose = floatAt(0)
 		item.Open = floatAt(1)
 		item.High = floatAt(2)
 		item.Low = floatAt(3)
 		item.Close = floatAt(4)
-		item.Unknown6 = floatAt(5)
+		item.Vol = uintAt(5)
+		item.Unknown6 = float64(item.Vol)
 		item.VolumeRatio = floatAt(6)
 		item.Amount = floatAt(7)
 		item.TotalShares = floatAt(8)
 		item.FloatShares = floatAt(9)
 		item.EPS = floatAt(10)
-		item.ROE = floatAt(11)
-		item.Unknown13 = floatAt(12)
-		item.MarketCap = floatAt(13)
+		item.NetAssets = floatAt(11)
+		item.ROE = item.NetAssets
+		item.ActionPrice = floatAt(12)
+		item.UnknownActionPrice = item.ActionPrice
+		item.Unknown13 = item.ActionPrice
+		item.TotalMarketCapAB = floatAt(13)
+		item.MarketCap = item.TotalMarketCapAB
 		item.PEDynamic = floatAt(14)
-		item.Zero16 = floatAt(15)
-		item.Zero17 = floatAt(16)
-		item.RiseSpeed = floatAt(17)
-		item.CurrentVol = binary.LittleEndian.Uint16(metrics[72:74])
-		offset := 76
-		item.TurnoverRate = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.Unknown21 = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.Unknown22 = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.LimitUp = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.LimitDown = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.Zero25 = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.Unknown26 = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.Unknown27 = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.RiseSpeed2 = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.Zero29 = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.PEStatic = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.PETTM = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
-		offset += 4
-		item.Unknown31 = float64(math.Float32frombits(binary.LittleEndian.Uint32(metrics[offset : offset+4])))
+		item.LotSizeInfo = uintAt(15)
+		item.Zero16 = float64(item.LotSizeInfo)
+		item.Unknown23 = floatAt(16)
+		item.Zero17 = item.Unknown23
+		item.DividendYield = floatAt(17)
+		item.SpeedPct = floatAt(27)
+		item.RiseSpeed = item.SpeedPct
+		item.LastVolume = uintAt(18)
+		item.CurrentVol = uint16(item.LastVolume)
+		item.Turnover = floatAt(19)
+		item.TurnoverRate = item.Turnover
+		item.SomeBitmap = uintAt(20)
+		item.Unknown21 = float64(item.SomeBitmap)
+		item.DecimalPoint = uintAt(21)
+		item.Unknown22 = float64(item.DecimalPoint)
+		item.BuyPriceLimit = floatAt(22)
+		item.LimitUp = item.BuyPriceLimit
+		item.SellPriceLimit = floatAt(23)
+		item.LimitDown = item.SellPriceLimit
+		item.Unknown34 = uintAt(24)
+		item.Zero25 = float64(item.Unknown34)
+		item.LotSize = uintAt(25)
+		item.LotSizeBoardSymbol = macLotSizeBoardSymbol(item.LotSize)
+		item.Unknown26 = float64(item.LotSize)
+		item.PreIPOV = floatAt(26)
+		item.Unknown27 = item.PreIPOV
+		item.RiseSpeed2 = item.SpeedPct
+		item.KCBFlag = uintAt(28)
+		item.FlagKCB = item.KCBFlag
+		item.Zero29 = float64(item.KCBFlag)
+		item.PETTM = floatAt(29)
+		item.PEStatic = floatAt(30)
+		item.UnknownClosePrice = floatAt(31)
+		item.Unknown31 = item.UnknownClosePrice
 
 		obj.reply.Stocks = append(obj.reply.Stocks, item)
 		pos += 196

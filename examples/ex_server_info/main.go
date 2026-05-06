@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Printf("server_info name=%s version=%s delay=%d now=%s", info.ServerName, info.Version, info.Delay, info.TimeNow)
+	log.Printf("server_info name=%s version=%s delay=%d now=%s sign2=%s", info.ServerName, info.Version, info.Delay, info.TimeNow, info.ServerSign2)
 
 	tick, err := client.ExGetTickChart(gotdx.ExCategoryUSStock, "TSLA")
 	if err != nil {

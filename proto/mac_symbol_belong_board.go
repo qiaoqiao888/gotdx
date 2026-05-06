@@ -29,15 +29,30 @@ type MACSymbolBelongBoardReply struct {
 }
 
 type MACBelongBoardItem struct {
-	BoardType  string
-	StatusCode int
-	BoardCode  string
-	BoardName  string
-	Price      float64
-	PreClose   float64
-	Metric1    float64
-	Metric2    float64
-	Metric3    float64
+	BoardType     string
+	MarketCode    int
+	StatusCode    int
+	BoardCode     string
+	BoardName     string
+	Price         float64
+	PreClose      float64
+	SchemaColumns int
+
+	LimitUpCount   float64
+	LimitDownCount float64
+	MostSimilar    float64
+
+	SpeedPct       float64
+	SymbolMarket   int
+	Symbol         string
+	SymbolName     string
+	SymbolClose    float64
+	SymbolPreClose float64
+	SymbolSpeedPct float64
+
+	Metric1 float64
+	Metric2 float64
+	Metric3 float64
 }
 
 func NewMACSymbolBelongBoard(req *MACSymbolBelongBoardRequest) *MACSymbolBelongBoard {
@@ -92,15 +107,39 @@ func (obj *MACSymbolBelongBoard) ParseResponse(header *RespHeader, data []byte) 
 			continue
 		}
 		item := MACBelongBoardItem{
-			BoardType:  anyToString(row[0]),
-			StatusCode: anyToInt(row[1]),
-			BoardCode:  anyToString(row[2]),
-			BoardName:  anyToString(row[3]),
-			Price:      anyToFloat64(row[4]),
-			PreClose:   anyToFloat64(row[5]),
-			Metric1:    anyToFloat64(row[6]),
-			Metric2:    anyToFloat64(row[7]),
-			Metric3:    anyToFloat64(row[8]),
+			BoardType:     anyToString(row[0]),
+			MarketCode:    anyToInt(row[1]),
+			BoardCode:     anyToString(row[2]),
+			BoardName:     anyToString(row[3]),
+			Price:         anyToFloat64(row[4]),
+			PreClose:      anyToFloat64(row[5]),
+			SchemaColumns: len(row),
+		}
+		item.StatusCode = item.MarketCode
+
+		switch len(row) {
+		case 9:
+			item.LimitUpCount = anyToFloat64(row[6])
+			item.LimitDownCount = anyToFloat64(row[7])
+			item.MostSimilar = anyToFloat64(row[8])
+			item.Metric1 = item.LimitUpCount
+			item.Metric2 = item.LimitDownCount
+			item.Metric3 = item.MostSimilar
+		case 13:
+			item.SpeedPct = anyToFloat64(row[6])
+			item.SymbolMarket = anyToInt(row[7])
+			item.Symbol = anyToString(row[8])
+			item.SymbolName = anyToString(row[9])
+			item.SymbolClose = anyToFloat64(row[10])
+			item.SymbolPreClose = anyToFloat64(row[11])
+			item.SymbolSpeedPct = anyToFloat64(row[12])
+			item.Metric1 = item.SpeedPct
+			item.Metric2 = item.SymbolClose
+			item.Metric3 = item.SymbolSpeedPct
+		default:
+			item.Metric1 = anyToFloat64(row[6])
+			item.Metric2 = anyToFloat64(row[7])
+			item.Metric3 = anyToFloat64(row[8])
 		}
 		obj.reply.List = append(obj.reply.List, item)
 	}

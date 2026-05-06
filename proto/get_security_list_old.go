@@ -67,12 +67,15 @@ func (obj *GetSecurityListOld) ParseResponse(header *RespHeader, data []byte) er
 		if pos+29 > len(data) {
 			return fmt.Errorf("invalid security list old item %d", i)
 		}
+		legacyUnknown1 := binary.LittleEndian.Uint16(data[pos+16 : pos+18])
 		item := Security{
-			Code:     Utf8ToGbk(data[pos : pos+6]),
-			Vol:      binary.LittleEndian.Uint16(data[pos+6 : pos+8]),
-			Name:     Utf8ToGbk(data[pos+8 : pos+16]),
-			Unknown2: binary.LittleEndian.Uint16(data[pos+25 : pos+27]),
-			Unknown3: binary.LittleEndian.Uint16(data[pos+27 : pos+29]),
+			Code:           Utf8ToGbk(data[pos : pos+6]),
+			Vol:            binary.LittleEndian.Uint16(data[pos+6 : pos+8]),
+			Name:           Utf8ToGbk(data[pos+8 : pos+16]),
+			Unknown1:       float32(legacyUnknown1),
+			LegacyUnknown1: legacyUnknown1,
+			Unknown2:       binary.LittleEndian.Uint16(data[pos+25 : pos+27]),
+			Unknown3:       binary.LittleEndian.Uint16(data[pos+27 : pos+29]),
 		}
 		item.VolUnit = item.Vol
 		item.DecimalPoint = int8(data[pos+20])

@@ -33,7 +33,10 @@ type TransactionData struct {
 	Price     float64 // 成交价。
 	Vol       int     // 成交量。
 	Num       int     // 笔数或委托笔数。
+	Trans     int     //  trans 字段。
 	BuyOrSell int     // 买卖方向标记。
+	Action    string  // 买卖方向，如 BUY/SELL/NEUTRAL。
+	Unknown   int     //  unknown 字段。
 }
 
 func NewGetTransactionData(req *GetTransactionDataRequest) *GetTransactionData {
@@ -94,10 +97,12 @@ func (obj *GetTransactionData) ParseResponse(header *RespHeader, data []byte) er
 		priceraw := getprice(data, &pos)
 		ele.Vol = getprice(data, &pos)
 		ele.Num = getprice(data, &pos)
+		ele.Trans = ele.Num
 		ele.BuyOrSell = getprice(data, &pos)
+		ele.Action = actionFromCode(ele.BuyOrSell)
 		lastprice += priceraw
 		ele.Price = float64(lastprice) / baseUnit(string(obj.request.Code[:]))
-		_ = getprice(data, &pos)
+		ele.Unknown = getprice(data, &pos)
 		obj.reply.List = append(obj.reply.List, ele)
 	}
 	return err
@@ -105,4 +110,17 @@ func (obj *GetTransactionData) ParseResponse(header *RespHeader, data []byte) er
 
 func (obj *GetTransactionData) Response() *GetTransactionDataReply {
 	return obj.reply
+}
+
+func actionFromCode(code int) string {
+	switch code {
+	case 0:
+		return "BUY"
+	case 1:
+		return "SELL"
+	case 2:
+		return "NEUTRAL"
+	default:
+		return fmt.Sprintf("%d", code)
+	}
 }

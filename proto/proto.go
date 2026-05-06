@@ -75,11 +75,20 @@ const (
 	KMSG_EXHISTORYTICKCHART     = 0x248c // 扩展市场历史分时图
 	KMSG_EXCHARTSAMPLING        = 0x254d // 扩展市场抽样图
 	KMSG_EXMAPPING2562          = 0x2562 // 扩展市场映射信息
+	KMSG_MACFILELIST            = 0x1215 // MAC: 文件列表
+	KMSG_MACFILEDOWNLOAD        = 0x1217 // MAC: 文件下载
 	KMSG_EXBOARDLIST            = 0x1231 // 扩展市场板块榜单
+	KMSG_MACCAPITALFLOW         = 0x1218 // MAC: 资金流向(head=2)
+	KMSG_MACSYMBOLINFO          = 0x122a // MAC: 股票摘要
+	KMSG_MACSYMBOLQUOTES        = 0x122b // MAC: 批量股票报价
+	KMSG_MACTRANSACTIONS        = 0x122f // MAC: 分时成交
+	KMSG_MACMARKETMONITOR       = 0x1237 // MAC: 市场监控
 	KMSG_MACSYMBOLBELONGBOARD   = 0x1218 // MAC: 股票所属板块
 	KMSG_MACBOARDMEMBERS        = 0x122c // MAC: 板块成员
 	KMSG_MACQUOTES              = 0x122d // MAC: 行情快照
 	KMSG_MACSYMBOLBARS          = 0x122e // MAC: 统一K线
+	KMSG_MACAUCTION             = 0x123d // MAC: 竞价
+	KMSG_MACTICKCHARTS          = 0x123e // MAC: 多日分时
 	KMSG_CLIENT264B             = 0x264b // 客户端信息264B
 	KMSG_CLIENT26AC             = 0x26ac // 客户端信息26AC
 	KMSG_CLIENT26AD             = 0x26ad // 客户端信息26AD

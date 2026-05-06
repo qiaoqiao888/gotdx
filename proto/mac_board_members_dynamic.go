@@ -34,6 +34,7 @@ type MACDynamicFieldDef struct {
 	Name        string
 	Format      string
 	Description string
+	Aliases     []string
 }
 
 // MACBoardMemberQuoteDynamicItem 表示单只成分股的动态字段结果。
@@ -82,24 +83,24 @@ var macBoardMembersQuotesDynamicFieldMap = map[uint8]MACDynamicFieldDef{
 	0x19: {Bit: 0x19, Name: "ask_volume", Format: "uint32", Description: "卖量"},
 	0x1a: {Bit: 0x1a, Name: "last_volume", Format: "uint32", Description: "现量"},
 	0x1b: {Bit: 0x1b, Name: "turnover", Format: "float32", Description: "换手"},
-	0x1c: {Bit: 0x1c, Name: "block5", Format: "uint32", Description: "行业分类代码"},
-	0x1d: {Bit: 0x1d, Name: "block_ext_info", Format: "uint32", Description: "行业扩展 ID"},
+	0x1c: {Bit: 0x1c, Name: "industry", Format: "uint32", Description: "行业分类代码", Aliases: []string{"block5"}},
+	0x1d: {Bit: 0x1d, Name: "industry_change_up", Format: "float32", Description: "行业涨跌幅", Aliases: []string{"block_ext_info"}},
 	0x1e: {Bit: 0x1e, Name: "some_bitmap", Format: "uint32", Description: "位图字段"},
 	0x1f: {Bit: 0x1f, Name: "decimal_point", Format: "uint32", Description: "数据精度"},
 	0x20: {Bit: 0x20, Name: "buy_price_limit", Format: "float32", Description: "涨停价"},
 	0x21: {Bit: 0x21, Name: "sell_price_limit", Format: "float32", Description: "跌停价"},
 	0x22: {Bit: 0x22, Name: "unknown_34", Format: "uint32", Description: "未知字段 34"},
 	0x23: {Bit: 0x23, Name: "lot_size", Format: "uint32", Description: "每手股数"},
-	0x24: {Bit: 0x24, Name: "float_shares", Format: "float32", Description: "流通股"},
+	0x24: {Bit: 0x24, Name: "pre_ipov", Format: "float32", Description: "昨 IPOV", Aliases: []string{"float_shares"}},
 	0x25: {Bit: 0x25, Name: "speed_pct", Format: "float32", Description: "涨速"},
 	0x26: {Bit: 0x26, Name: "avg_price", Format: "float32", Description: "均价"},
-	0x27: {Bit: 0x27, Name: "float_shares2", Format: "float32", Description: "流通股(备用)"},
+	0x27: {Bit: 0x27, Name: "ipov", Format: "float32", Description: "IPOV", Aliases: []string{"float_shares2"}},
 	0x28: {Bit: 0x28, Name: "pe_ttm_vol_related", Format: "float32", Description: "市盈率 TTM 相关"},
 	0x29: {Bit: 0x29, Name: "close_placeholder", Format: "float32", Description: "收盘价占位"},
 	0x2a: {Bit: 0x2a, Name: "unknown_42", Format: "float32", Description: "未知字段 42"},
 	0x2b: {Bit: 0x2b, Name: "kcb_flag", Format: "uint32", Description: "科创板标志"},
 	0x2c: {Bit: 0x2c, Name: "bj_flag", Format: "uint32", Description: "北交所标志"},
-	0x2d: {Bit: 0x2d, Name: "unknown_45", Format: "float32", Description: "未知字段 45"},
+	0x2d: {Bit: 0x2d, Name: "circulating_capital_z", Format: "float32", Description: "流通股本 Z", Aliases: []string{"unknown_45"}},
 	0x2e: {Bit: 0x2e, Name: "unknown_46", Format: "float32", Description: "未知字段 46"},
 	0x2f: {Bit: 0x2f, Name: "unknown_47", Format: "float32", Description: "未知字段 47"},
 	0x30: {Bit: 0x30, Name: "pe_ttm", Format: "float32", Description: "市盈率 TTM"},
@@ -142,6 +143,20 @@ var macBoardMembersQuotesDynamicFieldMap = map[uint8]MACDynamicFieldDef{
 	0x55: {Bit: 0x55, Name: "unknown_85", Format: "float32", Description: "未知字段 85"},
 	0x56: {Bit: 0x56, Name: "unknown_86", Format: "float32", Description: "未知字段 86"},
 	0x57: {Bit: 0x57, Name: "open_amount", Format: "float32", Description: "开盘金额"},
+	0x58: {Bit: 0x58, Name: "annual_limit_up_days", Format: "int32", Description: "年涨停天数"},
+	0x59: {Bit: 0x59, Name: "activity", Format: "uint32", Description: "活跃度"},
+	0x5c: {Bit: 0x5c, Name: "consecutive_up_days", Format: "int32", Description: "连涨天"},
+	0x5d: {Bit: 0x5d, Name: "limit_up_count", Format: "uint32", Description: "涨停数"},
+	0x5e: {Bit: 0x5e, Name: "limit_down_count", Format: "uint32", Description: "跌停数"},
+	0x5f: {Bit: 0x5f, Name: "industry_sub", Format: "uint32", Description: "行业二级分类"},
+	0x68: {Bit: 0x68, Name: "vol_speed_pct", Format: "float32", Description: "量涨速%"},
+	0x69: {Bit: 0x69, Name: "short_turnover_pct", Format: "float32", Description: "短换手%"},
+	0x6a: {Bit: 0x6a, Name: "amount_2m", Format: "float32", Description: "2 分钟金额"},
+	0x7a: {Bit: 0x7a, Name: "auction_vol_ratio", Format: "float32", Description: "竞价量比"},
+	0x85: {Bit: 0x85, Name: "avg_price_copy", Format: "float32", Description: "均价备份"},
+	0x88: {Bit: 0x88, Name: "up_count", Format: "uint32", Description: "上涨家数"},
+	0x8b: {Bit: 0x8b, Name: "down_count", Format: "uint32", Description: "下跌家数"},
+	0x8e: {Bit: 0x8e, Name: "constant_neg_one", Format: "int32", Description: "固定占位 -1"},
 }
 
 func defaultMACBoardMembersQuotesFieldBitmap() [20]byte {
@@ -248,11 +263,10 @@ func (obj *MACBoardMembersQuotesDynamic) ParseResponse(header *RespHeader, data 
 		fieldPos := 68
 		for _, field := range obj.reply.ActiveFields {
 			raw := row[fieldPos : fieldPos+4]
-			switch field.Format {
-			case "uint32":
-				item.Values[field.Name] = binary.LittleEndian.Uint32(raw)
-			default:
-				item.Values[field.Name] = float64(math.Float32frombits(binary.LittleEndian.Uint32(raw)))
+			value := decodeMACDynamicValue(field.Format, raw)
+			item.Values[field.Name] = value
+			for _, alias := range field.Aliases {
+				item.Values[alias] = value
 			}
 			fieldPos += 4
 		}
@@ -266,6 +280,17 @@ func (obj *MACBoardMembersQuotesDynamic) ParseResponse(header *RespHeader, data 
 // Response 返回动态字段成分报价响应。
 func (obj *MACBoardMembersQuotesDynamic) Response() *MACBoardMembersQuotesDynamicReply {
 	return obj.reply
+}
+
+func decodeMACDynamicValue(format string, raw []byte) any {
+	switch format {
+	case "uint32":
+		return binary.LittleEndian.Uint32(raw)
+	case "int32":
+		return int32(binary.LittleEndian.Uint32(raw))
+	default:
+		return float64(math.Float32frombits(binary.LittleEndian.Uint32(raw)))
+	}
 }
 
 func activeMACDynamicFields(bitmap [20]byte) []MACDynamicFieldDef {
