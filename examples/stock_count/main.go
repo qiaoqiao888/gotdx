@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -15,9 +15,9 @@ func main() {
 		name   string
 		market uint8
 	}{
-		{name: "SZ", market: gotdx.MarketSZ},
-		{name: "SH", market: gotdx.MarketSH},
-		{name: "BJ", market: gotdx.MarketBJ},
+		{name: "SZ", market: types.MarketSZ.Uint8()},
+		{name: "SH", market: types.MarketSH.Uint8()},
+		{name: "BJ", market: types.MarketBJ.Uint8()},
 	} {
 		count, err := client.StockCount(market.market)
 		if err != nil {

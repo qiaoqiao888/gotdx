@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 )
 
 type Hello2 struct {
@@ -19,8 +20,13 @@ type Hello2Request struct {
 }
 
 type Hello2Reply struct {
-	Info       string
-	serverTime string
+	Info        string
+	Had         uint8
+	Unknown2    uint16
+	Tips        string
+	Link        string
+	Msg         string
+	Unknown5Hex string
 }
 
 func NewHello2() *Hello2 {
@@ -55,10 +61,19 @@ func (obj *Hello2) BuildRequest() ([]byte, error) {
 */
 func (obj *Hello2) ParseResponse(header *RespHeader, data []byte) error {
 	obj.respHeader = header
+	if len(data) < 178 {
+		return fmt.Errorf("invalid hello2 response length: %d", len(data))
+	}
 
-	serverInfo := Utf8ToGbk(data[58:])
-	//fmt.Println(hex.EncodeToString(data))
-	obj.reply.Info = serverInfo
+	obj.reply.Had = data[0]
+	obj.reply.Unknown2 = binary.LittleEndian.Uint16(data[1:3])
+	obj.reply.Tips = Utf8ToGbk(data[3:53])
+	obj.reply.Unknown5Hex = hex.EncodeToString(data[53:58])
+	obj.reply.Link = Utf8ToGbk(data[58:178])
+	if obj.reply.Had == 0x01 && len(data) > 178 {
+		obj.reply.Msg = Utf8ToGbk(data[178:])
+	}
+	obj.reply.Info = Utf8ToGbk(data[58:])
 	return nil
 }
 

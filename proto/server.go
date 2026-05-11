@@ -3,6 +3,7 @@ package proto
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"time"
 )
@@ -181,6 +182,9 @@ type InfoReply struct {
 	Content     string
 	ServerSign  string
 	TimeNow     string
+	Unknown1    [3]string
+	Unknown2    [3]string
+	Unknown3    [3]uint16
 	Region      uint16
 	MaybeSwitch uint16
 }
@@ -216,6 +220,11 @@ func (obj *Info) ParseResponse(header *RespHeader, data []byte) error {
 	obj.reply.Info = Utf8ToGbk(data[16:71])
 	obj.reply.Content = Utf8ToGbk(data[81:336])
 	obj.reply.ServerSign = Utf8ToGbk(data[336:356])
+	unknown1A := binary.LittleEndian.Uint16(data[4:6])
+	unknown1B := binary.LittleEndian.Uint16(data[14:16])
+	unknown2A := binary.LittleEndian.Uint16(data[360:362])
+	unknown2B := binary.LittleEndian.Uint16(data[362:364])
+	unknown3B := binary.LittleEndian.Uint16(data[391:393])
 	dateNow := binary.LittleEndian.Uint32(data[397:401])
 	timeNow := binary.LittleEndian.Uint32(data[401:405])
 	if dateNow != 0 {
@@ -233,6 +242,9 @@ func (obj *Info) ParseResponse(header *RespHeader, data []byte) error {
 	}
 	obj.reply.Region = binary.LittleEndian.Uint16(data[389:391])
 	obj.reply.MaybeSwitch = binary.LittleEndian.Uint16(data[395:397])
+	obj.reply.Unknown1 = [3]string{fmt.Sprintf("%d", unknown1A), fmt.Sprintf("%d", unknown1B), hex.EncodeToString(data[6:14])}
+	obj.reply.Unknown2 = [3]string{fmt.Sprintf("%d", unknown2A), fmt.Sprintf("%d", unknown2B), hex.EncodeToString(data[364:370])}
+	obj.reply.Unknown3 = [3]uint16{obj.reply.Region, unknown3B, obj.reply.MaybeSwitch}
 	return nil
 }
 

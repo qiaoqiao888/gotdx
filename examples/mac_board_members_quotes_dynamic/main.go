@@ -5,6 +5,7 @@ import (
 
 	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -14,8 +15,8 @@ func main() {
 	reply, err := client.MACBoardMembersQuotesDynamic(
 		"880761",
 		10,
-		gotdx.SortChangePct,
-		uint8(gotdx.SortOrderDesc),
+		types.SortChangePct,
+		uint8(types.SortOrderDesc),
 		gotdx.DefaultMACBoardMembersQuotesFieldBitmap(),
 	)
 	if err != nil {

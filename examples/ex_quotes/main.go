@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 	defer client.Disconnect()
 
 	items, err := client.ExQuotes(
-		[]uint8{gotdx.ExCategoryUSStock, gotdx.ExCategoryHKMainBoard},
+		[]uint8{types.ExCategoryUSStock, types.ExCategoryHKMainBoard},
 		[]string{"TSLA", "09988"},
 	)
 	if err != nil {

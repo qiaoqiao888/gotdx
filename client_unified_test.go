@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
 )
 
 func TestNewKeepsMainAndExAddresses(t *testing.T) {
@@ -76,11 +77,11 @@ func TestNewMACExUsesMacExAddressAsPrimary(t *testing.T) {
 
 func TestApplyTurnoverHelpers(t *testing.T) {
 	shares := map[stockKey]float64{
-		{Market: MarketSZ, Code: "000001"}: 1000000,
+		{Market: types.MarketSZ.Uint8(), Code: "000001"}: 1000000,
 	}
 
 	quotes := []proto.SecurityQuote{{
-		Market: MarketSZ,
+		Market: types.MarketSZ.Uint8(),
 		Code:   "000001",
 		Vol:    12345,
 	}}
@@ -90,7 +91,7 @@ func TestApplyTurnoverHelpers(t *testing.T) {
 	}
 
 	quoteList := []proto.QuoteListItem{{
-		Market: MarketSZ,
+		Market: types.MarketSZ.Uint8(),
 		Code:   "000001",
 		Vol:    23456,
 	}}
@@ -106,7 +107,7 @@ func TestApplyTurnoverHelpers(t *testing.T) {
 	}
 
 	reply := &proto.GetVolumeProfileReply{
-		Market: MarketSZ,
+		Market: types.MarketSZ.Uint8(),
 		Code:   "000001",
 		Vol:    34567,
 	}

@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -15,25 +15,25 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	meta, err := client.GetFileMeta(gotdx.BlockFileDefault)
+	meta, err := client.GetFileMeta(types.BlockFileDefault)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Printf("file_meta name=%s size=%d", gotdx.BlockFileDefault, meta.Size)
+	log.Printf("file_meta name=%s size=%d", types.BlockFileDefault, meta.Size)
 
-	chunk, err := client.DownloadFile(gotdx.BlockFileDefault, 0, 1024)
+	chunk, err := client.DownloadFile(types.BlockFileDefault, 0, 1024)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Printf("download_chunk size=%d", chunk.Size)
 
-	full, err := client.DownloadFullFile(gotdx.BlockFileDefault, meta.Size)
+	full, err := client.DownloadFullFile(types.BlockFileDefault, meta.Size)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Printf("download_full size=%d", len(full))
 
-	flat, err := client.GetParsedBlockFile(gotdx.BlockFileGN)
+	flat, err := client.GetParsedBlockFile(types.BlockFileGN)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -41,7 +41,7 @@ func main() {
 		log.Printf("flat block=%s type=%d code=%s", item.BlockName, item.BlockType, item.Code)
 	}
 
-	grouped, err := client.GetGroupedBlockFile(gotdx.BlockFileFG)
+	grouped, err := client.GetGroupedBlockFile(types.BlockFileFG)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -3,15 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
 	client := exampleutil.NewMainClient()
 	defer client.Disconnect()
 
-	items, err := client.StockKLineOffset(gotdx.KLINE_TYPE_DAILY, gotdx.MarketSZ, "000001", 0, 10, 1, gotdx.AdjustNone)
+	items, err := client.StockKLineOffset(types.KLINE_TYPE_DAILY, types.MarketSZ.Uint8(), "000001", 0, 10, 1, types.AdjustNone)
 	if err != nil {
 		log.Fatalln(err)
 	}

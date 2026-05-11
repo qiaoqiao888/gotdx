@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -19,6 +20,7 @@ type ExLoginReply struct {
 	ServerName string
 	Desc       string
 	IP         string
+	Unknown    []string
 }
 
 func NewExLogin() *ExLogin {
@@ -45,7 +47,7 @@ func (obj *ExLogin) BuildRequest() ([]byte, error) {
 
 func (obj *ExLogin) ParseResponse(header *RespHeader, data []byte) error {
 	obj.respHeader = header
-	if len(data) < 294 {
+	if len(data) < 299 {
 		return fmt.Errorf("invalid ex login response length: %d", len(data))
 	}
 
@@ -59,7 +61,17 @@ func (obj *ExLogin) ParseResponse(header *RespHeader, data []byte) error {
 	obj.reply.DateTime = time.Date(int(year), time.Month(month), day, hour, minute, second, 0, time.Local).Format("2006-01-02 15:04:05")
 	obj.reply.ServerName = Utf8ToGbk(data[61:82])
 	obj.reply.Desc = Utf8ToGbk(data[93:244])
-	obj.reply.IP = Utf8ToGbk(data[242:])
+	obj.reply.IP = Utf8ToGbk(data[247:299])
+	obj.reply.Unknown = []string{
+		fmt.Sprintf("%g", float64(math.Float32frombits(binary.LittleEndian.Uint32(data[82:86])))),
+		fmt.Sprintf("%d", data[86]),
+		fmt.Sprintf("%d", binary.LittleEndian.Uint16(data[87:89])),
+		fmt.Sprintf("%d", binary.LittleEndian.Uint16(data[89:91])),
+		fmt.Sprintf("%d", binary.LittleEndian.Uint16(data[91:93])),
+		fmt.Sprintf("%d", data[244]),
+		fmt.Sprintf("%d", data[245]),
+		fmt.Sprintf("%d", data[246]),
+	}
 	return nil
 }
 
@@ -74,12 +86,14 @@ type ExServerInfo struct {
 }
 
 type ExServerInfoReply struct {
-	Delay      uint32
-	Info       string
-	Version    string
-	ServerSign string
-	TimeNow    string
-	ServerName string
+	Delay       uint32
+	Info        string
+	Version     string
+	ServerSign  string
+	ServerSign2 string
+	TimeNow     string
+	ServerName  string
+	Name        string
 }
 
 func NewExServerInfo() *ExServerInfo {
@@ -109,6 +123,7 @@ func (obj *ExServerInfo) ParseResponse(header *RespHeader, data []byte) error {
 	obj.reply.Info = Utf8ToGbk(data[16:41])
 	obj.reply.Version = Utf8ToGbk(data[41:70])
 	obj.reply.ServerSign = Utf8ToGbk(data[117:130])
+	obj.reply.ServerSign2 = Utf8ToGbk(data[240:253])
 
 	dateNow := binary.LittleEndian.Uint32(data[80:84])
 	timeNow := binary.LittleEndian.Uint32(data[84:88])
@@ -119,7 +134,8 @@ func (obj *ExServerInfo) ParseResponse(header *RespHeader, data []byte) error {
 	minute := int((timeNow % 10000) / 100)
 	second := int(timeNow % 100)
 	obj.reply.TimeNow = time.Date(year, time.Month(month), day, hour, minute, second, 0, time.Local).Format("2006-01-02 15:04:05")
-	obj.reply.ServerName = Utf8ToGbk(data[159:189])
+	obj.reply.Name = Utf8ToGbk(data[159:189])
+	obj.reply.ServerName = obj.reply.Name
 	return nil
 }
 

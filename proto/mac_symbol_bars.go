@@ -39,6 +39,24 @@ type MACSymbolBarsReply struct {
 	Count   uint16
 	Start   uint32
 	List    []MACSymbolBar
+
+	Name         string
+	Decimal      uint8
+	Category     uint16
+	VolUnit      float64
+	DateTime     string
+	PreClose     float64
+	Open         float64
+	High         float64
+	Low          float64
+	Close        float64
+	Momentum     float64
+	Vol          uint32
+	Amount       float64
+	Turnover     float64
+	Avg          float64
+	Industry     uint32
+	IndustryCode string
 }
 
 type MACSymbolBar struct {
@@ -136,6 +154,30 @@ func (obj *MACSymbolBars) ParseResponse(header *RespHeader, data []byte) error {
 		obj.reply.List = append(obj.reply.List, item)
 		pos += 36
 	}
+
+	if pos+120 > len(data) {
+		return nil
+	}
+
+	obj.reply.Name = Utf8ToGbk(data[pos : pos+44])
+	obj.reply.Decimal = data[pos+44]
+	obj.reply.Category = binary.LittleEndian.Uint16(data[pos+45 : pos+47])
+	obj.reply.VolUnit = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+47 : pos+51])))
+	dateRaw := binary.LittleEndian.Uint32(data[pos+56 : pos+60])
+	timeRaw := binary.LittleEndian.Uint32(data[pos+60 : pos+64])
+	obj.reply.DateTime = formatMACQuoteDateTime(dateRaw, timeRaw)
+	obj.reply.PreClose = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+64 : pos+68])))
+	obj.reply.Open = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+68 : pos+72])))
+	obj.reply.High = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+72 : pos+76])))
+	obj.reply.Low = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+76 : pos+80])))
+	obj.reply.Close = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+80 : pos+84])))
+	obj.reply.Momentum = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+84 : pos+88])))
+	obj.reply.Vol = binary.LittleEndian.Uint32(data[pos+88 : pos+92])
+	obj.reply.Amount = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+92 : pos+96])))
+	obj.reply.Turnover = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+108 : pos+112])))
+	obj.reply.Avg = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+112 : pos+116])))
+	obj.reply.Industry = binary.LittleEndian.Uint32(data[pos+116 : pos+120])
+	obj.reply.IndustryCode = macIndustryBoardSymbol(obj.reply.Industry)
 
 	return nil
 }

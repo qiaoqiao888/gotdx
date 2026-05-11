@@ -39,22 +39,23 @@ type MACQuotesReply struct {
 	Count     uint16
 	ChartData []MACQuoteChartItem
 
-	Name     string
-	Decimal  uint8
-	Category uint16
-	VolUnit  float64
-	DateTime string
-	PreClose float64
-	Open     float64
-	High     float64
-	Low      float64
-	Close    float64
-	Momentum float64
-	Vol      uint32
-	Amount   float64
-	Turnover float64
-	Avg      float64
-	Industry uint32
+	Name         string
+	Decimal      uint8
+	Category     uint16
+	VolUnit      float64
+	DateTime     string
+	PreClose     float64
+	Open         float64
+	High         float64
+	Low          float64
+	Close        float64
+	Momentum     float64
+	Vol          uint32
+	Amount       float64
+	Turnover     float64
+	Avg          float64
+	Industry     uint32
+	IndustryCode string
 }
 
 // MACQuoteChartItem 表示 MAC 分时采样点。
@@ -152,6 +153,7 @@ func (obj *MACQuotes) ParseResponse(header *RespHeader, data []byte) error {
 	obj.reply.Turnover = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+108 : pos+112])))
 	obj.reply.Avg = float64(math.Float32frombits(binary.LittleEndian.Uint32(data[pos+112 : pos+116])))
 	obj.reply.Industry = binary.LittleEndian.Uint32(data[pos+116 : pos+120])
+	obj.reply.IndustryCode = macIndustryBoardSymbol(obj.reply.Industry)
 
 	return nil
 }

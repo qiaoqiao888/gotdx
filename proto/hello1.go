@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
+	"time"
 )
 
 type Hello1 struct {
@@ -20,7 +22,10 @@ type Hello1Request struct {
 
 type Hello1Reply struct {
 	Info       string
-	serverTime string
+	DateTime   string
+	ServerName string
+	Website    string
+	Category   string
 }
 
 func NewHello1() *Hello1 {
@@ -58,10 +63,31 @@ func (obj *Hello1) BuildRequest() ([]byte, error) {
 */
 func (obj *Hello1) ParseResponse(header *RespHeader, data []byte) error {
 	obj.respHeader = header
+	if len(data) < 189 {
+		return fmt.Errorf("invalid hello1 response length: %d", len(data))
+	}
 
-	serverInfo := Utf8ToGbk(data[68:])
+	year := binary.LittleEndian.Uint16(data[1:3])
+	day := int(data[3])
+	month := int(data[4])
+	minute := int(data[5])
+	hour := int(data[6])
+	second := int(data[8])
 
-	obj.reply.Info = serverInfo
+	obj.reply.DateTime = time.Date(
+		int(year),
+		time.Month(month),
+		day,
+		hour,
+		minute,
+		second,
+		0,
+		time.Local,
+	).Format("2006-01-02 15:04:05")
+	obj.reply.ServerName = Utf8ToGbk(data[67:89])
+	obj.reply.Website = Utf8ToGbk(data[89:153])
+	obj.reply.Category = Utf8ToGbk(data[159:189])
+	obj.reply.Info = Utf8ToGbk(data[67:])
 	return nil
 }
 

@@ -3,15 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
 	client := exampleutil.NewMainClient()
 	defer client.Disconnect()
 
-	auction, err := client.StockAuction(gotdx.MarketSZ, "000001", 0, 20)
+	auction, err := client.StockAuction(types.MarketSZ.Uint8(), "000001", 0, 20)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -19,7 +19,7 @@ func main() {
 		log.Printf("auction time=%s price=%.2f matched=%d unmatched=%d", item.Time, item.Price, item.Matched, item.Unmatched)
 	}
 
-	top, err := client.StockTopBoard(gotdx.CategoryA, 5)
+	top, err := client.StockTopBoard(types.CategoryA, 5)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -27,7 +27,7 @@ func main() {
 		log.Printf("top_increase code=%s price=%.2f value=%.2f", item.Code, item.Price, item.Value)
 	}
 
-	unusual, err := client.StockUnusual(gotdx.MarketSZ, 0, 10)
+	unusual, err := client.StockUnusual(types.MarketSZ.Uint8(), 0, 10)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -35,7 +35,7 @@ func main() {
 		log.Printf("unusual code=%s time=%s desc=%s value=%s type=%d", item.Code, item.Time, item.Desc, item.Value, item.UnusualType)
 	}
 
-	profile, err := client.StockVolumeProfile(gotdx.MarketSZ, "000001")
+	profile, err := client.StockVolumeProfile(types.MarketSZ.Uint8(), "000001")
 	if err != nil {
 		log.Fatalln(err)
 	}

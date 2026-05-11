@@ -28,15 +28,16 @@ type GetSecurityListReply struct {
 }
 
 type Security struct {
-	Code         string  // 证券代码。
-	Vol          uint16  // 成交量单位原值。
-	VolUnit      uint16  // 成交量单位。
-	DecimalPoint int8    // 价格小数位数。
-	Name         string  // 证券名称。
-	PreClose     float64 // 昨收价。
-	Unknown1     float32 // 未确认字段。
-	Unknown2     uint16  // 未确认字段。
-	Unknown3     uint16  // 未确认字段。
+	Code           string  // 证券代码。
+	Vol            uint16  // 成交量单位原值。
+	VolUnit        uint16  // 成交量单位。
+	DecimalPoint   int8    // 价格小数位数。
+	Name           string  // 证券名称。
+	PreClose       float64 // 昨收价。
+	Unknown1       float32 // 未确认字段。
+	LegacyUnknown1 uint16  // 旧版列表里的首个未知字段。
+	Unknown2       uint16  // 未确认字段。
+	Unknown3       uint16  // 未确认字段。
 }
 
 func NewGetSecurityList(req *GetSecurityListRequest) *GetSecurityList {

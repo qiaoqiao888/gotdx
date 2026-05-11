@@ -27,6 +27,8 @@ func main() {
 	}
 	log.Printf("server_info now=%s region=%d switch=%d info=%q",
 		info.TimeNow, info.Region, info.MaybeSwitch, info.Info)
+	log.Printf("server_info unknown1=%v unknown2=%v unknown3=%v",
+		info.Unknown1, info.Unknown2, info.Unknown3)
 
 	announcement, err := client.GetAnnouncement()
 	if err != nil {

@@ -28,3 +28,18 @@ func MACBoardMembersQuotesFieldBitmapFromBits(bits ...int) [20]byte {
 	}
 	return bitmap
 }
+
+// DefaultMACSymbolQuotesFieldBitmap 返回 0x122B 常用批量报价位图。
+func DefaultMACSymbolQuotesFieldBitmap() [20]byte {
+	return DefaultMACBoardMembersQuotesFieldBitmap()
+}
+
+// FullMACSymbolQuotesFieldBitmap 返回 0x122B 全字段实验位图。
+func FullMACSymbolQuotesFieldBitmap() [20]byte {
+	return FullMACBoardMembersQuotesFieldBitmap()
+}
+
+// MACSymbolQuotesFieldBitmapFromBits 根据 bit 列表组装 0x122B/0x122C 通用位图。
+func MACSymbolQuotesFieldBitmapFromBits(bits ...int) [20]byte {
+	return MACBoardMembersQuotesFieldBitmapFromBits(bits...)
+}

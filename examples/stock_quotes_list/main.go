@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -12,10 +12,10 @@ func main() {
 	defer client.Disconnect()
 
 	items, err := client.StockQuotesList(
-		gotdx.CategoryA,
+		types.CategoryA,
 		0,
 		20,
-		gotdx.SortTotalAmount,
+		types.SortTotalAmount,
 		true,
 		0,
 	)

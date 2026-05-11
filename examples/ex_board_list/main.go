@@ -3,15 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
 	client := exampleutil.NewExClient()
 	defer client.Disconnect()
 
-	items, err := client.ExBoardList(gotdx.BoardTypeHY, 0, 20)
+	items, err := client.ExBoardList(types.BoardTypeHY, 0, 20)
 	if err != nil {
 		log.Fatalln(err)
 	}

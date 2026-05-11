@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
 )
 
 type CompanyInfoSection struct {
@@ -62,7 +63,7 @@ func (client *Client) DownloadFullFile(filename string, size uint32) ([]byte, er
 	var result []byte
 	var downloaded uint32
 	for {
-		reply, err := client.DownloadFile(filename, downloaded, DefaultDownloadSize)
+		reply, err := client.DownloadFile(filename, downloaded, types.DefaultDownloadSize)
 		if err != nil {
 			return nil, err
 		}

@@ -3,15 +3,17 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
 	client := exampleutil.NewMACClient()
 	defer client.Disconnect()
 
-	reply, err := client.MACQuotes(gotdx.MarketSZ, "000001")
+	reply, err := client.MACQuotes(types.MarketSZ.Uint8(), "000001")
+	// 指定日期可改为:
+	// reply, err := client.MACQuotesWithDate(types.MarketSZ.Uint8(), "000001", 20260418)
 	if err != nil {
 		log.Fatalln(err)
 	}

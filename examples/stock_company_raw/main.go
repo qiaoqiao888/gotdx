@@ -4,8 +4,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	categories, err := client.GetCompanyCategories(gotdx.MarketSZ, "000001")
+	categories, err := client.GetCompanyCategories(types.MarketSZ.Uint8(), "000001")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -24,7 +24,7 @@ func main() {
 
 	if len(categories.Categories) > 0 {
 		first := categories.Categories[0]
-		content, err := client.GetCompanyContent(gotdx.MarketSZ, "000001", first.Filename, first.Start, first.Length)
+		content, err := client.GetCompanyContent(types.MarketSZ.Uint8(), "000001", first.Filename, first.Start, first.Length)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -32,14 +32,14 @@ func main() {
 			first.Name, first.Filename, preview(content.Content, 80))
 	}
 
-	finance, err := client.GetFinanceInfo(gotdx.MarketSZ, "000001")
+	finance, err := client.GetFinanceInfo(types.MarketSZ.Uint8(), "000001")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Printf("finance code=%s updated=%d total_shares=%.2f revenue=%.2f profit=%.2f",
 		finance.Code, finance.UpdatedDate, finance.TotalShares, finance.OperatingRevenue, finance.NetProfit)
 
-	xdxr, err := client.GetXDXRInfo(gotdx.MarketSZ, "000001")
+	xdxr, err := client.GetXDXRInfo(types.MarketSZ.Uint8(), "000001")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -48,7 +48,7 @@ func main() {
 		log.Printf("xdxr date=%s category=%d name=%s", item.Date.Format("2006-01-02"), item.Category, item.Name)
 	}
 
-	bundle, err := client.GetCompanyInfo(gotdx.MarketSZ, "000001")
+	bundle, err := client.GetCompanyInfo(types.MarketSZ.Uint8(), "000001")
 	if err != nil {
 		log.Fatalln(err)
 	}
