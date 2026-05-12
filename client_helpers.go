@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
 )
 
 var ErrMarketCodeCount = errors.New("market code count error")
@@ -107,7 +108,7 @@ func makeExStocks(categories []uint8, codes []string) ([]proto.ExStock, error) {
 }
 
 func quotesSortReverse(sortType uint16, reverse bool) uint16 {
-	if sortType == SortCode {
+	if sortType == types.SortCode {
 		return 0
 	}
 	if reverse {

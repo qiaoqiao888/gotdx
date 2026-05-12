@@ -3,15 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
 	client := exampleutil.NewExClient()
 	defer client.Disconnect()
 
-	items, err := client.ExMapping2562(uint16(gotdx.ExCategoryCFFEXFutures), 0, 10)
+	items, err := client.ExMapping2562(uint16(types.ExCategoryCFFEXFutures), 0, 10)
 	if err != nil {
 		log.Fatalln(err)
 	}

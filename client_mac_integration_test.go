@@ -1,6 +1,10 @@
 package gotdx
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/bensema/gotdx/types"
+)
 
 const macIntegrationHistoryDate = 20260430
 
@@ -20,7 +24,7 @@ func Test_tdx_MACRecentProtocols(t *testing.T) {
 		client := newMACIntegrationClient()
 		defer client.Disconnect()
 
-		reply, err := client.MACQuotesWithDate(MarketSZ, "000001", macIntegrationHistoryDate)
+		reply, err := client.MACQuotesWithDate(types.MarketSZ.Uint8(), "000001", macIntegrationHistoryDate)
 		if err != nil {
 			t.Fatalf("MACQuotesWithDate failed: %v", err)
 		}
@@ -40,7 +44,7 @@ func Test_tdx_MACRecentProtocols(t *testing.T) {
 		defer client.Disconnect()
 
 		reply, err := client.MACSymbolQuotes(
-			[]uint8{MarketSZ, MarketSH},
+			[]uint8{types.MarketSZ.Uint8(), types.MarketSH.Uint8()},
 			[]string{"000001", "600000"},
 			DefaultMACSymbolQuotesFieldBitmap(),
 		)
@@ -81,7 +85,7 @@ func Test_tdx_MACRecentProtocols(t *testing.T) {
 		client := newMACIntegrationClient()
 		defer client.Disconnect()
 
-		items, err := client.MACTransactionsWithDate(MarketSZ, "000001", 0, 20, macIntegrationHistoryDate)
+		items, err := client.MACTransactionsWithDate(types.MarketSZ.Uint8(), "000001", 0, 20, macIntegrationHistoryDate)
 		if err != nil {
 			t.Fatalf("MACTransactionsWithDate failed: %v", err)
 		}
@@ -97,7 +101,7 @@ func Test_tdx_MACRecentProtocols(t *testing.T) {
 		client := newMACIntegrationClient()
 		defer client.Disconnect()
 
-		items, err := client.MACAuction(MarketSZ, "000001", 0, 20)
+		items, err := client.MACAuction(types.MarketSZ.Uint8(), "000001", 0, 20)
 		if err != nil {
 			t.Fatalf("MACAuction failed: %v", err)
 		}
@@ -114,7 +118,7 @@ func Test_tdx_MACRecentProtocols(t *testing.T) {
 		client := newMACIntegrationClient()
 		defer client.Disconnect()
 
-		reply, err := client.MACTickCharts(MarketSZ, "000001", 0, 3)
+		reply, err := client.MACTickCharts(types.MarketSZ.Uint8(), "000001", 0, 3)
 		if err != nil {
 			t.Fatalf("MACTickCharts failed: %v", err)
 		}
@@ -139,7 +143,7 @@ func Test_tdx_MACRecentProtocols(t *testing.T) {
 		client := newMACIntegrationClient()
 		defer client.Disconnect()
 
-		reply, err := client.MACSymbolInfo(MarketSZ, "000001")
+		reply, err := client.MACSymbolInfo(types.MarketSZ.Uint8(), "000001")
 		if err != nil {
 			t.Fatalf("MACSymbolInfo failed: %v", err)
 		}
@@ -152,7 +156,7 @@ func Test_tdx_MACRecentProtocols(t *testing.T) {
 		client := newMACIntegrationClient()
 		defer client.Disconnect()
 
-		reply, err := client.MACCapitalFlow(MarketSZ, "000001")
+		reply, err := client.MACCapitalFlow(types.MarketSZ.Uint8(), "000001")
 		if err != nil {
 			t.Fatalf("MACCapitalFlow failed: %v", err)
 		}
@@ -190,7 +194,7 @@ func Test_tdx_MACRecentProtocols(t *testing.T) {
 		client := newMACIntegrationClient()
 		defer client.Disconnect()
 
-		items, err := client.MACMarketMonitor(MarketSZ, 0, 20)
+		items, err := client.MACMarketMonitor(types.MarketSZ.Uint8(), 0, 20)
 		if err != nil {
 			t.Fatalf("MACMarketMonitor failed: %v", err)
 		}

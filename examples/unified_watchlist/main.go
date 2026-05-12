@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 	defer client.Disconnect()
 
 	stockItems, err := client.StockQuotesDetail(
-		[]uint8{gotdx.MarketSZ, gotdx.MarketSH, gotdx.MarketSZ},
+		[]uint8{types.MarketSZ.Uint8(), types.MarketSH.Uint8(), types.MarketSZ.Uint8()},
 		[]string{"000001", "600000", "300750"},
 	)
 	if err != nil {
@@ -23,7 +23,7 @@ func main() {
 			item.Code, item.ServerTime, item.Price, item.Open, item.High, item.Low, item.Vol, item.Turnover)
 	}
 
-	bars, err := client.StockKLine(gotdx.KLINE_TYPE_DAILY, gotdx.MarketSZ, "000001", 0, 5, 1, gotdx.AdjustNone)
+	bars, err := client.StockKLine(types.KLINE_TYPE_DAILY, types.MarketSZ.Uint8(), "000001", 0, 5, 1, types.AdjustNone)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -32,7 +32,7 @@ func main() {
 	}
 
 	exItems, err := client.ExQuotes(
-		[]uint8{gotdx.ExCategoryUSStock, gotdx.ExCategoryHKStock},
+		[]uint8{types.ExCategoryUSStock, types.ExCategoryHKStock},
 		[]string{"TSLA", "09988"},
 	)
 	if err != nil {
@@ -43,7 +43,7 @@ func main() {
 			item.Code, item.Date, item.Close, item.High, item.Low, item.Vol)
 	}
 
-	samples, err := client.ExChartSampling(gotdx.ExCategoryUSStock, "TSLA")
+	samples, err := client.ExChartSampling(types.ExCategoryUSStock, "TSLA")
 	if err != nil {
 		log.Fatalln(err)
 	}

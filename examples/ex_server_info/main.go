@@ -5,6 +5,7 @@ import (
 
 	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -28,7 +29,7 @@ func main() {
 	}
 	log.Printf("server_info name=%s version=%s delay=%d now=%s sign2=%s", info.ServerName, info.Version, info.Delay, info.TimeNow, info.ServerSign2)
 
-	tick, err := client.ExGetTickChart(gotdx.ExCategoryUSStock, "TSLA")
+	tick, err := client.ExGetTickChart(types.ExCategoryUSStock, "TSLA")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -36,7 +37,7 @@ func main() {
 		log.Printf("ex_tick time=%s price=%.2f avg=%.2f vol=%d", item.Time, item.Price, item.Avg, item.Vol)
 	}
 
-	historyTick, err := client.ExGetHistoryTickChart(20260330, gotdx.ExCategoryUSStock, "TSLA")
+	historyTick, err := client.ExGetHistoryTickChart(20260330, types.ExCategoryUSStock, "TSLA")
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
 )
 
 type methodParam struct {
@@ -1861,7 +1862,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 			if err != nil {
 				return queryPayload{}, err
 			}
-			bars, err := client.GetIndexBars(gotdx.KLINE_TYPE_DAILY, market, code, 0, 5)
+			bars, err := client.GetIndexBars(types.KLINE_TYPE_DAILY, market, code, 0, 5)
 			if err != nil {
 				return queryPayload{}, err
 			}
@@ -2135,7 +2136,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		})
 		return payload, request, err
 	case "stock_file_meta":
-		filename := valueOrDefault(params, "filename", gotdx.BlockFileDefault)
+		filename := valueOrDefault(params, "filename", types.BlockFileDefault)
 		request := map[string]any{"filename": filename}
 		payload, err := withMainClient(func(client *gotdx.Client) (queryPayload, error) {
 			reply, err := client.GetFileMeta(filename)
@@ -2150,7 +2151,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		})
 		return payload, request, err
 	case "stock_file_download":
-		filename := valueOrDefault(params, "filename", gotdx.BlockFileDefault)
+		filename := valueOrDefault(params, "filename", types.BlockFileDefault)
 		start, err := parseUint32Value(params, "start", 0)
 		if err != nil {
 			return queryPayload{}, nil, err
@@ -2176,7 +2177,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		})
 		return payload, request, err
 	case "stock_file_full":
-		filename := valueOrDefault(params, "filename", gotdx.BlockFileDefault)
+		filename := valueOrDefault(params, "filename", types.BlockFileDefault)
 		request := map[string]any{"filename": filename}
 		payload, err := withMainClient(func(client *gotdx.Client) (queryPayload, error) {
 			content, err := client.DownloadFullFile(filename, 0)
@@ -2234,7 +2235,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		})
 		return payload, request, err
 	case "stock_block_flat":
-		filename := valueOrDefault(params, "filename", gotdx.BlockFileGN)
+		filename := valueOrDefault(params, "filename", types.BlockFileGN)
 		request := map[string]any{"filename": filename}
 		payload, err := withMainClient(func(client *gotdx.Client) (queryPayload, error) {
 			reply, err := client.GetParsedBlockFile(filename)
@@ -2250,7 +2251,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		})
 		return payload, request, err
 	case "stock_block_grouped":
-		filename := valueOrDefault(params, "filename", gotdx.BlockFileFG)
+		filename := valueOrDefault(params, "filename", types.BlockFileFG)
 		request := map[string]any{"filename": filename}
 		payload, err := withMainClient(func(client *gotdx.Client) (queryPayload, error) {
 			reply, err := client.GetGroupedBlockFile(filename)
@@ -2780,7 +2781,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		})
 		return payload, map[string]any{}, err
 	case "mac_board_count":
-		boardType, err := parseUint16Value(params, "board_type", gotdx.BoardTypeAll)
+		boardType, err := parseUint16Value(params, "board_type", types.BoardTypeAll)
 		if err != nil {
 			return queryPayload{}, nil, err
 		}
@@ -3260,7 +3261,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		})
 		return payload, request, err
 	case "mac_ex_board_count":
-		boardType, err := parseUint16Value(params, "board_type", gotdx.ExBoardTypeHKAll)
+		boardType, err := parseUint16Value(params, "board_type", types.ExBoardTypeHKAll)
 		if err != nil {
 			return queryPayload{}, nil, err
 		}
@@ -3317,7 +3318,11 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		})
 		return payload, request, err
 	case "mac_ex_quotes":
-		market, err := parseUint8Value(params, "market", gotdx.ExCategoryUSStock)
+		market, err := parseUint8Value(params, "market", types.ExCategoryUSStock)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		queryDate, err := parseUint32Value(params, "query_date", 0)
 		if err != nil {
 			return queryPayload{}, nil, err
 		}

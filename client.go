@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
 )
 
 type clientMode uint8
@@ -278,7 +279,7 @@ func (client *Client) exchange(builder proto.RequestBuilder) (*proto.RespHeader,
 
 	if header.ZipSize > proto.MessageMaxBytes {
 		log.Printf("msgData has bytes(%d) beyond max %d\n", header.ZipSize, proto.MessageMaxBytes)
-		return nil, nil, ErrBadData
+		return nil, nil, types.ErrBadData
 	}
 
 	msgData := make([]byte, header.ZipSize)

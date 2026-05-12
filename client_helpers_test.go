@@ -1,25 +1,29 @@
 package gotdx
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/bensema/gotdx/types"
+)
 
 func TestMakeStocks(t *testing.T) {
-	stocks, err := makeStocks([]uint8{MarketSZ, MarketSH}, []string{"000001", "600000"})
+	stocks, err := makeStocks([]uint8{types.MarketSZ.Uint8(), types.MarketSH.Uint8()}, []string{"000001", "600000"})
 	if err != nil {
 		t.Fatalf("makeStocks failed: %v", err)
 	}
 	if len(stocks) != 2 {
 		t.Fatalf("unexpected stock len: %d", len(stocks))
 	}
-	if stocks[0].Market != MarketSZ || stocks[0].Code != "000001" {
+	if stocks[0].Market != types.MarketSZ.Uint8() || stocks[0].Code != "000001" {
 		t.Fatalf("unexpected first stock: %+v", stocks[0])
 	}
-	if stocks[1].Market != MarketSH || stocks[1].Code != "600000" {
+	if stocks[1].Market != types.MarketSH.Uint8() || stocks[1].Code != "600000" {
 		t.Fatalf("unexpected second stock: %+v", stocks[1])
 	}
 }
 
 func TestMakeStocksCountMismatch(t *testing.T) {
-	if _, err := makeStocks([]uint8{MarketSZ}, []string{"000001", "600000"}); err == nil {
+	if _, err := makeStocks([]uint8{types.MarketSZ.Uint8()}, []string{"000001", "600000"}); err == nil {
 		t.Fatal("expected error on count mismatch")
 	}
 }
@@ -67,26 +71,26 @@ func TestMakeFixedBuffers(t *testing.T) {
 }
 
 func TestQuotesSortReverse(t *testing.T) {
-	if got := quotesSortReverse(SortCode, true); got != 0 {
+	if got := quotesSortReverse(types.SortCode, true); got != 0 {
 		t.Fatalf("unexpected code sort reverse: %d", got)
 	}
-	if got := quotesSortReverse(SortPrice, false); got != 1 {
+	if got := quotesSortReverse(types.SortPrice, false); got != 1 {
 		t.Fatalf("unexpected asc sort reverse: %d", got)
 	}
-	if got := quotesSortReverse(SortPrice, true); got != 2 {
+	if got := quotesSortReverse(types.SortPrice, true); got != 2 {
 		t.Fatalf("unexpected desc sort reverse: %d", got)
 	}
 }
 
 func TestMakeExStocks(t *testing.T) {
-	stocks, err := makeExStocks([]uint8{ExCategoryUSStock, ExCategoryHKMainBoard}, []string{"TSLA", "09988"})
+	stocks, err := makeExStocks([]uint8{types.ExCategoryUSStock, types.ExCategoryHKMainBoard}, []string{"TSLA", "09988"})
 	if err != nil {
 		t.Fatalf("makeExStocks failed: %v", err)
 	}
 	if len(stocks) != 2 {
 		t.Fatalf("unexpected stock len: %d", len(stocks))
 	}
-	if stocks[0].Category != ExCategoryUSStock || stocks[0].Code != "TSLA" {
+	if stocks[0].Category != types.ExCategoryUSStock || stocks[0].Code != "TSLA" {
 		t.Fatalf("unexpected first ex stock: %+v", stocks[0])
 	}
 }

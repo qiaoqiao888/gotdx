@@ -3,15 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
 	client := exampleutil.NewMACClient()
 	defer client.Disconnect()
 
-	items, err := client.MACSymbolBelongBoard("000001", gotdx.MarketSZ)
+	items, err := client.MACSymbolBelongBoard("000001", types.MarketSZ.Uint8())
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -3,15 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
 	client := exampleutil.NewUnifiedClient()
 	defer client.Disconnect()
 
-	reply, err := client.StockQuotesDetail([]uint8{gotdx.MarketSZ, gotdx.MarketSH}, []string{"000001", "600008"})
+	reply, err := client.StockQuotesDetail([]uint8{types.MarketSZ.Uint8(), types.MarketSH.Uint8()}, []string{"000001", "600008"})
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -20,7 +20,7 @@ func main() {
 		log.Printf("%+v", obj)
 	}
 
-	exQuotes, err := client.ExQuotes([]uint8{gotdx.ExCategoryUSStock}, []string{"TSLA"})
+	exQuotes, err := client.ExQuotes([]uint8{types.ExCategoryUSStock}, []string{"TSLA"})
 	if err != nil {
 		log.Fatalln(err)
 	}

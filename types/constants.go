@@ -1,17 +1,69 @@
-package gotdx
+package types
 
-import "errors"
+import (
+	"errors"
+)
+
+type Market uint8
 
 const (
-	MarketSZ uint8 = 0 // 深圳
-	MarketSH uint8 = 1 // 上海
-	MarketBJ uint8 = 2 // 北京
-
-	// Backward-compatible aliases.
-	MarketSz = MarketSZ
-	MarketSh = MarketSH
-	MarketBj = MarketBJ
+	MarketSZ Market = iota
+	MarketSH
+	MarketBJ
+	MarketHK
+	MarketUSA
 )
+
+const (
+	STOCK = iota // 股票
+	INDEX        // 指数
+	BLOCK        // 板块
+	ETF          // ETF
+)
+
+const (
+	MarketSZName string = "SZ"
+	MarketSHName string = "SH"
+	MarketBJName string = "BJ"
+	MarketHKName string = "HK"
+	MarketUSName string = "US"
+)
+
+func (obj Market) Uint8() uint8 { return uint8(obj) }
+
+func (obj Market) String() string {
+	switch obj {
+	case MarketSZ:
+		return "SZ"
+	case MarketSH:
+		return "SH"
+	case MarketBJ:
+		return "BJ"
+	case MarketHK:
+		return "HK"
+	case MarketUSA:
+		return "US"
+	default:
+		return "unknown"
+	}
+}
+
+func (obj Market) Name() string {
+	switch obj {
+	case MarketSH:
+		return "上海"
+	case MarketSZ:
+		return "深圳"
+	case MarketBJ:
+		return "北京"
+	case MarketHK:
+		return "香港"
+	case MarketUSA:
+		return "美国"
+	default:
+		return "未知"
+	}
+}
 
 const (
 	ExMarketStock        uint8 = 1  // 股票

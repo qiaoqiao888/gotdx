@@ -3,15 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
 	client := exampleutil.NewExClient()
 	defer client.Disconnect()
 
-	items, err := client.ExExperiment2488(gotdx.ExCategoryUSStock, "TSLA", 55)
+	items, err := client.ExExperiment2488(types.ExCategoryUSStock, "TSLA", 55)
 	if err != nil {
 		log.Fatalln(err)
 	}

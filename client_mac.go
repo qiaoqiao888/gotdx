@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
 )
 
 const (
@@ -470,7 +471,7 @@ func (client *Client) MACDownloadFullFile(filename string, index uint32, size ui
 	var result []byte
 	var downloaded uint32
 	for {
-		reply, err := client.GetMACFileDownload(filename, index, downloaded, DefaultDownloadSize)
+		reply, err := client.GetMACFileDownload(filename, index, downloaded, types.DefaultDownloadSize)
 		if err != nil {
 			return nil, err
 		}

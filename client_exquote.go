@@ -1,6 +1,9 @@
 package gotdx
 
-import "github.com/bensema/gotdx/proto"
+import (
+	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
+)
 
 // GetExServerInfo 获取扩展市场服务信息
 func (client *Client) GetExServerInfo() (*proto.ExServerInfoReply, error) {
@@ -23,7 +26,7 @@ func (client *Client) ExGetCategoryList() (*proto.ExGetCategoryListReply, error)
 // ExGetList 获取扩展市场标的列表
 func (client *Client) ExGetList(start uint32, count uint16) (*proto.ExGetListReply, error) {
 	if count == 0 {
-		count = DefaultExListCount
+		count = types.DefaultExListCount
 	}
 	obj := proto.NewExGetList(&proto.ExGetListRequest{Start: start, Count: count})
 	return executeProtocol(client, obj)
@@ -38,7 +41,7 @@ func (client *Client) ExGetListExtra(a uint16, b uint16, count uint16) (*proto.E
 // ExGetQuotesList 获取扩展市场行情列表
 func (client *Client) ExGetQuotesList(category uint8, start uint16, count uint16, sortType uint16, reverse bool) (*proto.ExGetQuotesListReply, error) {
 	if count == 0 {
-		count = DefaultExQuotesCount
+		count = types.DefaultExQuotesCount
 	}
 	obj := proto.NewExGetQuotesList(&proto.ExGetQuotesListRequest{
 		Category:    category,
@@ -202,7 +205,7 @@ func (client *Client) ExDownloadFullFile(filename string, size uint32) ([]byte, 
 	var result []byte
 	var downloaded uint32
 	for {
-		reply, err := client.ExDownloadFile(filename, downloaded, DefaultDownloadSize)
+		reply, err := client.ExDownloadFile(filename, downloaded, types.DefaultDownloadSize)
 		if err != nil {
 			return nil, err
 		}

@@ -2,9 +2,11 @@ package gotdx
 
 import (
 	"fmt"
-	"github.com/bensema/gotdx/proto"
 	"os"
 	"testing"
+
+	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
 )
 
 func newClient() *Client {
@@ -41,7 +43,7 @@ func Test_tdx_GetSecurityCount(t *testing.T) {
 	fmt.Println("================ GetSecurityCount ================")
 	tdx := newClient()
 	defer tdx.Disconnect()
-	reply, err := tdx.GetSecurityCount(MarketSH)
+	reply, err := tdx.GetSecurityCount(types.MarketSH.Uint8())
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}
@@ -53,7 +55,7 @@ func Test_tdx_GetSecurityQuotes(t *testing.T) {
 	fmt.Println("================ GetSecurityQuotes ================")
 	tdx := newClient()
 	defer tdx.Disconnect()
-	reply, err := tdx.GetSecurityQuotes([]uint8{MarketSZ}, []string{"002062"})
+	reply, err := tdx.GetSecurityQuotes([]uint8{types.MarketSZ.Uint8()}, []string{"002062"})
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}
@@ -68,7 +70,7 @@ func Test_tdx_GetSecurityList(t *testing.T) {
 	fmt.Println("================ GetSecurityList ================")
 	tdx := newClient()
 	defer tdx.Disconnect()
-	reply, err := tdx.GetSecurityList(MarketSH, 0)
+	reply, err := tdx.GetSecurityList(types.MarketSH.Uint8(), 0)
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}
@@ -82,7 +84,7 @@ func Test_tdx_GetSecurityBars(t *testing.T) {
 	fmt.Println("================ GetSecurityBars ================")
 	tdx := newClient()
 	defer tdx.Disconnect()
-	reply, err := tdx.GetSecurityBars(proto.KLINE_TYPE_RI_K, MarketSZ, "000001", 0, 10)
+	reply, err := tdx.GetSecurityBars(proto.KLINE_TYPE_RI_K, types.MarketSZ.Uint8(), "000001", 0, 10)
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}
@@ -97,7 +99,7 @@ func Test_tdx_GetIndexBars(t *testing.T) {
 	fmt.Println("================ GetIndexBars ================")
 	tdx := newClient()
 	defer tdx.Disconnect()
-	reply, err := tdx.GetIndexBars(proto.KLINE_TYPE_RI_K, MarketSH, "000001", 0, 10)
+	reply, err := tdx.GetIndexBars(proto.KLINE_TYPE_RI_K, types.MarketSH.Uint8(), "000001", 0, 10)
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}
@@ -112,7 +114,7 @@ func Test_tdx_GetMinuteTimeData(t *testing.T) {
 	fmt.Println("================ GetMinuteTimeData ================")
 	tdx := newClient()
 	defer tdx.Disconnect()
-	reply, err := tdx.GetMinuteTimeData(MarketSZ, "159607")
+	reply, err := tdx.GetMinuteTimeData(types.MarketSZ.Uint8(), "159607")
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}
@@ -127,7 +129,7 @@ func Test_tdx_GetHistoryMinuteTimeData(t *testing.T) {
 	fmt.Println("================ GetHistoryMinuteTimeData ================")
 	tdx := newClient()
 	defer tdx.Disconnect()
-	reply, err := tdx.GetHistoryMinuteTimeData(20220511, MarketSZ, "159607")
+	reply, err := tdx.GetHistoryMinuteTimeData(20220511, types.MarketSZ.Uint8(), "159607")
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}
@@ -142,7 +144,7 @@ func Test_tdx_GetTransactionData(t *testing.T) {
 	fmt.Println("================ GetTransactionData ================")
 	tdx := newClient()
 	defer tdx.Disconnect()
-	reply, err := tdx.GetTransactionData(MarketSZ, "159607", 0, 10)
+	reply, err := tdx.GetTransactionData(types.MarketSZ.Uint8(), "159607", 0, 10)
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}
@@ -157,7 +159,7 @@ func Test_tdx_GetHistoryTransactionData(t *testing.T) {
 	fmt.Println("================ GetHistoryTransactionData ================")
 	tdx := newClient()
 	defer tdx.Disconnect()
-	reply, err := tdx.GetHistoryTransactionData(20230922, MarketSZ, "159607", 0, 10)
+	reply, err := tdx.GetHistoryTransactionData(20230922, types.MarketSZ.Uint8(), "159607", 0, 10)
 	if err != nil {
 		t.Errorf("error:%s", err)
 	}

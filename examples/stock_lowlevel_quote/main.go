@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -17,13 +17,13 @@ func main() {
 	}
 	log.Printf("connected info=%s", hello.Info)
 
-	count, err := client.GetSecurityCount(gotdx.MarketSZ)
+	count, err := client.GetSecurityCount(types.MarketSZ.Uint8())
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Printf("security_count=%d", count.Count)
 
-	list, err := client.GetSecurityListRange(gotdx.MarketSZ, 0, 200)
+	list, err := client.GetSecurityListRange(types.MarketSZ.Uint8(), 0, 200)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -31,7 +31,7 @@ func main() {
 		log.Printf("security_list first=%s/%s count=%d", list.List[0].Code, list.List[0].Name, len(list.List))
 	}
 
-	quotes, err := client.GetSecurityQuotes([]uint8{gotdx.MarketSZ, gotdx.MarketSH}, []string{"000001", "600000"})
+	quotes, err := client.GetSecurityQuotes([]uint8{types.MarketSZ.Uint8(), types.MarketSH.Uint8()}, []string{"000001", "600000"})
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -39,7 +39,7 @@ func main() {
 		log.Printf("security_quote code=%s price=%.2f open=%.2f high=%.2f low=%.2f", item.Code, item.Price, item.Open, item.High, item.Low)
 	}
 
-	minute, err := client.GetMinuteTimeData(gotdx.MarketSZ, "000001")
+	minute, err := client.GetMinuteTimeData(types.MarketSZ.Uint8(), "000001")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -47,7 +47,7 @@ func main() {
 		log.Printf("minute price=%.2f avg=%.4f vol=%d", item.Price, item.Avg, item.Vol)
 	}
 
-	trans, err := client.GetTransactionData(gotdx.MarketSZ, "000001", 0, 10)
+	trans, err := client.GetTransactionData(types.MarketSZ.Uint8(), "000001", 0, 10)
 	if err != nil {
 		log.Fatalln(err)
 	}

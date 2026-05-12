@@ -1,6 +1,9 @@
 package gotdx
 
-import "github.com/bensema/gotdx/proto"
+import (
+	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
+)
 
 // GetExchangeAnnouncement 获取交易所公告
 func (client *Client) GetExchangeAnnouncement() (*proto.ExchangeAnnouncementReply, error) {
@@ -91,7 +94,7 @@ func (client *Client) GetQuotesDetail(markets []uint8, codes []string) (*proto.G
 
 // GetSecurityList 获取市场内指定范围内的所有证券代码
 func (client *Client) GetSecurityList(market uint8, start uint16) (*proto.GetSecurityListReply, error) {
-	return client.GetSecurityListRange(market, uint32(start), DefaultSecurityListCount)
+	return client.GetSecurityListRange(market, uint32(start), types.DefaultSecurityListCount)
 }
 
 // GetSecurityListOld 获取旧版证券列表
@@ -128,7 +131,7 @@ func (client *Client) GetKLine(category uint16, market uint8, code string, start
 
 // GetSecurityBars 获取股票K线
 func (client *Client) GetSecurityBars(category uint16, market uint8, code string, start uint16, count uint16) (*proto.GetSecurityBarsReply, error) {
-	return client.GetKLine(category, market, code, start, count, 1, AdjustNone)
+	return client.GetKLine(category, market, code, start, count, 1, types.AdjustNone)
 }
 
 // GetSecurityBarsOffset 获取偏移K线
@@ -154,7 +157,7 @@ func (client *Client) GetIndexBars(category uint16, market uint8, code string, s
 		Times:    1,
 		Start:    start,
 		Count:    count,
-		Adjust:   AdjustNone,
+		Adjust:   types.AdjustNone,
 	})
 	return executeProtocol(client, obj)
 }
@@ -212,7 +215,7 @@ func (client *Client) GetQuotesEncrypt(markets []uint8, codes []string) (*proto.
 
 // GetMinuteTimeData 获取分时图数据
 func (client *Client) GetMinuteTimeData(market uint8, code string) (*proto.GetMinuteTimeDataReply, error) {
-	return client.GetTickChart(market, code, 0, DefaultTickChartCount)
+	return client.GetTickChart(market, code, 0, types.DefaultTickChartCount)
 }
 
 // GetTickChart 获取当日分时图数据

@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 const (
@@ -17,7 +17,7 @@ func main() {
 	client := exampleutil.NewMainClient()
 	defer client.Disconnect()
 
-	total, err := client.StockCount(gotdx.MarketSZ)
+	total, err := client.StockCount(types.MarketSZ.Uint8())
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -27,7 +27,7 @@ func main() {
 	var fetched int
 	for page := startPage; page < maxPages; page++ {
 		start := uint32(page * pageSize)
-		items, err := client.StockList(gotdx.MarketSZ, start, pageSize)
+		items, err := client.StockList(types.MarketSZ.Uint8(), start, pageSize)
 		if err != nil {
 			log.Fatalf("page=%d start=%d failed: %v", page, start, err)
 		}
