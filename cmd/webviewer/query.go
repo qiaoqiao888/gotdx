@@ -2285,7 +2285,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 				return queryPayload{}, err
 			}
 			return queryPayload{
-				columns: []string{"market", "code", "name", "abbr"},
+				columns: []string{"goods_type", "code", "name", "abbr"},
 				rows:    rowsFromExCategoryList(reply.List),
 				raw:     reply,
 			}, nil
@@ -2355,7 +2355,10 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 			{"login_time", login.DateTime},
 			{"login_server", login.ServerName},
 			{"login_ip", login.IP},
+			{"login_unknown", strings.Join(login.Unknown, ",")},
 			{"server_name", info.ServerName},
+			{"server_sign", info.ServerSign},
+			{"server_sign2", info.ServerSign2},
 			{"version", info.Version},
 			{"delay", fmt.Sprintf("%d", info.Delay)},
 			{"time_now", info.TimeNow},
@@ -3316,6 +3319,10 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		return payload, request, err
 	case "mac_ex_quotes":
 		market, err := parseUint8Value(params, "market", types.ExCategoryUSStock)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		queryDate, err := parseUint32Value(params, "query_date", 0)
 		if err != nil {
 			return queryPayload{}, nil, err
 		}
