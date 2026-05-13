@@ -3326,10 +3326,6 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 		if err != nil {
 			return queryPayload{}, nil, err
 		}
-		queryDate, err := parseUint32Value(params, "query_date", 0)
-		if err != nil {
-			return queryPayload{}, nil, err
-		}
 		code := valueOrDefault(params, "code", "TSLA")
 		request := map[string]any{"market": market, "code": code, "query_date": queryDate}
 		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
