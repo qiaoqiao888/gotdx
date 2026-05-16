@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/bensema/gotdx/proto"
+	"github.com/bensema/gotdx/types"
 )
 
 func (client *Client) quotationClient() (*Client, error) {
@@ -198,7 +199,9 @@ func (client *Client) StockQuotesDetail(markets []uint8, codes []string) ([]prot
 	if err != nil {
 		return nil, err
 	}
-	applyTurnoverToSecurityQuotes(reply.List, client.loadFloatSharesMap(qc, stockKeysFromPairLists(markets, codes)))
+	keys := stockKeysFromPairLists(markets, codes)
+	applyDecimalPointToSecurityQuotes(reply.List, client.loadDecimalPointMap(qc, keys))
+	applyTurnoverToSecurityQuotes(reply.List, client.loadFloatSharesMap(qc, keys))
 	return reply.List, nil
 }
 
@@ -211,7 +214,9 @@ func (client *Client) StockQuotesList(category uint8, start uint16, count uint16
 	if err != nil {
 		return nil, err
 	}
-	applyTurnoverToQuoteList(reply.List, client.loadFloatSharesMap(qc, stockKeysFromQuoteItems(reply.List)))
+	keys := stockKeysFromQuoteItems(reply.List)
+	applyDecimalPointToQuoteList(reply.List, client.loadDecimalPointMap(qc, keys))
+	applyTurnoverToQuoteList(reply.List, client.loadFloatSharesMap(qc, keys))
 	return reply.List, nil
 }
 
@@ -224,7 +229,9 @@ func (client *Client) StockQuotes(markets []uint8, codes []string) ([]proto.Quot
 	if err != nil {
 		return nil, err
 	}
-	applyTurnoverToQuoteList(reply.List, client.loadFloatSharesMap(qc, stockKeysFromQuoteItems(reply.List)))
+	keys := stockKeysFromQuoteItems(reply.List)
+	applyDecimalPointToQuoteList(reply.List, client.loadDecimalPointMap(qc, keys))
+	applyTurnoverToQuoteList(reply.List, client.loadFloatSharesMap(qc, keys))
 	return reply.List, nil
 }
 
@@ -655,6 +662,176 @@ func stockKeysFromQuoteItems(items []proto.QuoteListItem) []stockKey {
 		keys = append(keys, stockKey{Market: item.Market, Code: item.Code})
 	}
 	return keys
+}
+
+func (client *Client) loadDecimalPointMap(qc *Client, keys []stockKey) map[stockKey]int8 {
+	out := make(map[stockKey]int8, len(keys))
+	markets := make(map[uint8]struct{})
+	for _, key := range keys {
+		if key.Code == "" {
+			continue
+		}
+		if decimal, ok := client.cachedDecimalPoint(key); ok {
+			out[key] = decimal
+			continue
+		}
+		if !client.decimalPointMarketLoaded(key.Market) {
+			markets[key.Market] = struct{}{}
+		}
+	}
+
+	for market := range markets {
+		client.loadDecimalPointMarket(qc, market)
+	}
+
+	for _, key := range keys {
+		if key.Code == "" {
+			continue
+		}
+		if _, ok := out[key]; ok {
+			continue
+		}
+		if decimal, ok := client.cachedDecimalPoint(key); ok {
+			out[key] = decimal
+		}
+	}
+	return out
+}
+
+func (client *Client) cachedDecimalPoint(key stockKey) (int8, bool) {
+	client.mu.Lock()
+	defer client.mu.Unlock()
+	if client.decimalPoints == nil {
+		return 0, false
+	}
+	codes := client.decimalPoints[key.Market]
+	if codes == nil {
+		return 0, false
+	}
+	decimal, ok := codes[key.Code]
+	return decimal, ok
+}
+
+func (client *Client) decimalPointMarketLoaded(market uint8) bool {
+	client.mu.Lock()
+	defer client.mu.Unlock()
+	return client.decimalPointsLoaded != nil && client.decimalPointsLoaded[market]
+}
+
+func (client *Client) loadDecimalPointMarket(qc *Client, market uint8) {
+	if client.decimalPointMarketLoaded(market) {
+		return
+	}
+
+	pageSize := uint32(types.DefaultSecurityListCount)
+	for start := uint32(0); ; start += pageSize {
+		reply, err := qc.GetSecurityListRange(market, start, pageSize)
+		if err != nil {
+			return
+		}
+		client.storeDecimalPointItems(market, reply.List)
+		if len(reply.List) == 0 || uint32(len(reply.List)) < pageSize {
+			break
+		}
+	}
+
+	client.mu.Lock()
+	if client.decimalPointsLoaded == nil {
+		client.decimalPointsLoaded = make(map[uint8]bool)
+	}
+	client.decimalPointsLoaded[market] = true
+	client.mu.Unlock()
+}
+
+func (client *Client) storeDecimalPointItems(market uint8, items []proto.Security) {
+	client.mu.Lock()
+	defer client.mu.Unlock()
+	if client.decimalPoints == nil {
+		client.decimalPoints = make(map[uint8]map[string]int8)
+	}
+	if client.decimalPoints[market] == nil {
+		client.decimalPoints[market] = make(map[string]int8, len(items))
+	}
+	for _, item := range items {
+		if item.Code == "" {
+			continue
+		}
+		client.decimalPoints[market][item.Code] = item.DecimalPoint
+	}
+}
+
+func applyDecimalPointToSecurityQuotes(items []proto.SecurityQuote, decimals map[stockKey]int8) {
+	for i := range items {
+		decimal, ok := decimals[stockKey{Market: items[i].Market, Code: items[i].Code}]
+		if !ok {
+			continue
+		}
+		factor := decimalPriceFactor(decimal, 100)
+		if factor == 1 {
+			continue
+		}
+		items[i].Close *= factor
+		items[i].Price *= factor
+		items[i].PreClose *= factor
+		items[i].LastClose *= factor
+		items[i].Open *= factor
+		items[i].High *= factor
+		items[i].Low *= factor
+		items[i].NegPrice *= factor
+		for j := range items[i].BidLevels {
+			items[i].BidLevels[j].Price *= factor
+		}
+		for j := range items[i].AskLevels {
+			items[i].AskLevels[j].Price *= factor
+		}
+		items[i].Bid1 *= factor
+		items[i].Bid2 *= factor
+		items[i].Bid3 *= factor
+		items[i].Bid4 *= factor
+		items[i].Bid5 *= factor
+		items[i].Ask1 *= factor
+		items[i].Ask2 *= factor
+		items[i].Ask3 *= factor
+		items[i].Ask4 *= factor
+		items[i].Ask5 *= factor
+	}
+}
+
+func applyDecimalPointToQuoteList(items []proto.QuoteListItem, decimals map[stockKey]int8) {
+	for i := range items {
+		decimal, ok := decimals[stockKey{Market: items[i].Market, Code: items[i].Code}]
+		if !ok {
+			continue
+		}
+		factor := decimalPriceFactor(decimal, 100)
+		if factor == 1 {
+			continue
+		}
+		items[i].Close *= factor
+		items[i].Price *= factor
+		items[i].PreClose *= factor
+		items[i].Open *= factor
+		items[i].High *= factor
+		items[i].Low *= factor
+		items[i].NegPrice *= factor
+		for j := range items[i].BidLevels {
+			items[i].BidLevels[j].Price *= factor
+		}
+		for j := range items[i].AskLevels {
+			items[i].AskLevels[j].Price *= factor
+		}
+	}
+}
+
+func decimalPriceFactor(decimal int8, currentDivisor float64) float64 {
+	if decimal < 0 || decimal > 8 {
+		return 1
+	}
+	divisor := math.Pow10(int(decimal))
+	if divisor == 0 {
+		return 1
+	}
+	return currentDivisor / divisor
 }
 
 func (client *Client) loadFloatShares(qc *Client, market uint8, code string) float64 {

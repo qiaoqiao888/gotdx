@@ -17,7 +17,7 @@ func main() {
 		10,
 		types.SortChangePct,
 		uint8(types.SortOrderDesc),
-		gotdx.DefaultMACBoardMembersQuotesFieldBitmap(),
+		gotdx.MACFieldBitmap(gotdx.MACPresetCommon),
 	)
 	if err != nil {
 		log.Fatalln(err)

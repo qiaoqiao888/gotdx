@@ -657,6 +657,132 @@ var methodDefs = []methodDef{
 			{Key: "count", Label: "数量", Type: "number", Default: "30"},
 		},
 	},
+
+	{
+		Key:         "goods_count",
+		Label:       "商品数量",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_count，获取扩展市场商品总数。",
+	},
+	{
+		Key:         "goods_category_list",
+		Label:       "商品分类",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_category_list，获取商品分类列表。",
+	},
+	{
+		Key:         "goods_list",
+		Label:       "商品列表",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_list，获取扩展市场商品列表。",
+		Params: []methodParam{
+			{Key: "start", Label: "起始", Type: "number", Default: "0"},
+			{Key: "count", Label: "数量", Type: "number", Default: "30"},
+		},
+	},
+	{
+		Key:         "goods_varieties",
+		Label:       "商品品种",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_varieties，获取期货/期权等合约品种。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "47"},
+			{Key: "start", Label: "起始", Type: "number", Default: "0"},
+			{Key: "count", Label: "数量", Type: "number", Default: "30", Help: "最大 1000"},
+		},
+	},
+	{
+		Key:         "goods_quote",
+		Label:       "商品单只报价",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_quotes 的单只调用形式。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "74"},
+			{Key: "code", Label: "代码", Type: "text", Default: "TSLA"},
+		},
+	},
+	{
+		Key:         "goods_quotes",
+		Label:       "商品批量报价",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_quotes，批量获取商品报价。",
+		Params: []methodParam{
+			{Key: "markets", Label: "市场列表", Type: "text", Default: "74,71", Help: "可只填一个市场，多个代码时会自动复用"},
+			{Key: "codes", Label: "代码列表", Type: "textarea", Default: "TSLA,00700"},
+		},
+	},
+	{
+		Key:         "goods_quotes_list",
+		Label:       "商品行情列表",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_quotes_list，获取可排序商品行情列表。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "74"},
+			{Key: "start", Label: "起始", Type: "number", Default: "0"},
+			{Key: "count", Label: "数量", Type: "number", Default: "30"},
+			{Key: "sort_type", Label: "排序类型", Type: "number", Default: "0"},
+			{Key: "reverse", Label: "是否倒序", Type: "text", Default: "false"},
+		},
+	},
+	{
+		Key:         "goods_kline",
+		Label:       "商品 K 线",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_kline，使用 MAC 统一 K 线协议。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "74"},
+			{Key: "code", Label: "代码", Type: "text", Default: "TSLA"},
+			{Key: "period", Label: "周期", Type: "number", Default: "4"},
+			{Key: "start", Label: "起始", Type: "number", Default: "0"},
+			{Key: "count", Label: "数量", Type: "number", Default: "20"},
+			{Key: "times", Label: "倍数", Type: "number", Default: "1"},
+			{Key: "adjust", Label: "复权", Type: "number", Default: "0"},
+		},
+	},
+	{
+		Key:         "goods_tick_chart",
+		Label:       "商品分时",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_tick_chart，获取实时或历史分时。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "74"},
+			{Key: "code", Label: "代码", Type: "text", Default: "TSLA"},
+			{Key: "query_date", Label: "日期", Type: "number", Default: "0", Help: "填 0 取实时"},
+		},
+	},
+	{
+		Key:         "goods_chart_sampling",
+		Label:       "商品分时缩略",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_chart_sampling，获取分时缩略采样。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "74"},
+			{Key: "code", Label: "代码", Type: "text", Default: "TSLA"},
+		},
+	},
+	{
+		Key:         "goods_history_transaction",
+		Label:       "商品历史成交",
+		Group:       "TDX 商品",
+		Target:      "mac_ex",
+		Description: "对齐 TDX goods_history_transaction，获取商品历史逐笔成交。",
+		Params: []methodParam{
+			{Key: "market", Label: "市场", Type: "number", Default: "74"},
+			{Key: "code", Label: "代码", Type: "text", Default: "TSLA"},
+			{Key: "query_date", Label: "日期", Type: "number", Default: "20260330"},
+			{Key: "count", Label: "数量", Type: "number", Default: "2000"},
+		},
+	},
 	{
 		Key:         "ex_file_meta",
 		Label:       "扩展文件元信息",
@@ -787,6 +913,24 @@ var methodDefs = []methodDef{
 		Params: []methodParam{
 			{Key: "market", Label: "市场", Type: "number", Default: "0"},
 			{Key: "code", Label: "代码", Type: "text", Default: "000001"},
+		},
+	},
+	{
+		Key:         "mac_server_info",
+		Label:       "MAC 服务信息",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC 主站服务端交易日、交易时段和状态参数。",
+	},
+	{
+		Key:         "mac_kline_offset",
+		Label:       "MAC K线偏移",
+		Group:       "MAC 协议",
+		Target:      "mac",
+		Description: "MAC K线偏移信息协议，仅返回总量/回显类信息，不返回K线明细。",
+		Params: []methodParam{
+			{Key: "offset", Label: "偏移", Type: "number", Default: "0"},
+			{Key: "count", Label: "总量", Type: "number", Default: "128000"},
 		},
 	},
 	{
@@ -2711,6 +2855,221 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 			}, nil
 		})
 		return payload, request, err
+
+	case "goods_count":
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			count, err := client.GoodsCount()
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"field", "value"}, rows: [][]string{{"count", fmt.Sprintf("%d", count)}}, raw: count}, nil
+		})
+		return payload, map[string]any{}, err
+	case "goods_category_list":
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			items, err := client.GoodsCategoryList()
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"goods_type", "code", "name", "abbr"}, rows: rowsFromExCategoryList(items), raw: items}, nil
+		})
+		return payload, map[string]any{}, err
+	case "goods_list":
+		start, err := parseUint32Value(params, "start", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		count, err := parseUint16Value(params, "count", 30)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"start": start, "count": count}
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			items, err := client.GoodsList(start, count)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"market", "category", "code", "name", "desc_1", "desc_2", "desc_3"}, rows: rowsFromExList(items), raw: items}, nil
+		})
+		return payload, request, err
+	case "goods_varieties":
+		market, err := parseUint16Value(params, "market", 47)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		start, err := parseUint32Value(params, "start", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		count, err := parseUint32Value(params, "count", 30)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"market": market, "start": start, "count": count}
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			items, err := client.GoodsVarieties(market, start, count)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"category", "name", "unknown", "index", "switch", "codes"}, rows: rowsFromExMapping2562(items), raw: items}, nil
+		})
+		return payload, request, err
+	case "goods_quote":
+		market, err := parseUint8Value(params, "market", 74)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "TSLA")
+		request := map[string]any{"market": market, "code": code}
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			item, err := client.GoodsQuote(market, code)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"code", "date", "close", "open", "high", "low", "vol", "avg"}, rows: rowsFromExQuotes([]proto.ExQuoteItem{*item}), raw: item}, nil
+		})
+		return payload, request, err
+	case "goods_quotes":
+		markets, err := parseUint8List(valueOrDefault(params, "markets", "74,71"))
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		codes := parseCodeList(valueOrDefault(params, "codes", "TSLA,00700"))
+		markets, err = expandUint8List(markets, len(codes), "markets")
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"markets": markets, "codes": codes}
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			items, err := client.GoodsQuotes(markets, codes)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"code", "date", "close", "open", "high", "low", "vol", "avg"}, rows: rowsFromExQuotes(items), raw: items}, nil
+		})
+		return payload, request, err
+	case "goods_quotes_list":
+		market, err := parseUint8Value(params, "market", 74)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		start, err := parseUint16Value(params, "start", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		count, err := parseUint16Value(params, "count", 30)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		sortType, err := parseUint16Value(params, "sort_type", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		reverse, err := parseBoolValue(params, "reverse", false)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"market": market, "start": start, "count": count, "sort_type": sortType, "reverse": reverse}
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			items, err := client.GoodsQuotesList(market, start, count, sortType, reverse)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"code", "date", "close", "open", "high", "low", "vol", "avg"}, rows: rowsFromExQuotes(items), raw: items}, nil
+		})
+		return payload, request, err
+	case "goods_kline":
+		market, err := parseUint8Value(params, "market", 74)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "TSLA")
+		period, err := parseUint16Value(params, "period", 4)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		start, err := parseUint32Value(params, "start", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		count, err := parseUint32Value(params, "count", 20)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		times, err := parseUint16Value(params, "times", 1)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		adjust, err := parseUint16Value(params, "adjust", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"market": market, "code": code, "period": period, "start": start, "count": count, "times": times, "adjust": adjust}
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			items, err := client.GoodsKLine(market, code, period, start, count, times, adjust)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"datetime", "open", "high", "low", "close", "vol", "amount", "float_shares", "turnover"}, rows: rowsFromMACSymbolBars(items), raw: items}, nil
+		})
+		return payload, request, err
+	case "goods_tick_chart":
+		market, err := parseUint8Value(params, "market", 74)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "TSLA")
+		queryDate, err := parseUint32Value(params, "query_date", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"market": market, "code": code, "query_date": queryDate}
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			items, err := client.GoodsTickChart(market, code, queryDate)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"time", "price", "avg", "vol", "momentum"}, rows: rowsFromMACQuoteChart(items), raw: items}, nil
+		})
+		return payload, request, err
+	case "goods_chart_sampling":
+		market, err := parseUint8Value(params, "market", 74)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "TSLA")
+		request := map[string]any{"market": market, "code": code}
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			prices, err := client.GoodsChartSampling(market, code)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"index", "price", "pre_close", "change"}, rows: rowsFromSampling(0, prices), raw: prices}, nil
+		})
+		return payload, request, err
+	case "goods_history_transaction":
+		market, err := parseUint8Value(params, "market", 74)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		code := valueOrDefault(params, "code", "TSLA")
+		queryDate, err := parseUint32Value(params, "query_date", 20260330)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		count, err := parseUint32Value(params, "count", gotdx.DefaultGoodsHistoryTransactionCount)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"market": market, "code": code, "query_date": queryDate, "count": count}
+		payload, err := withMACExClient(func(client *gotdx.Client) (queryPayload, error) {
+			items, err := client.GoodsHistoryTransaction(market, code, queryDate, count)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{columns: []string{"time", "price", "vol", "trade_count", "buy_or_sell"}, rows: rowsFromMACTransactions(items), raw: items}, nil
+		})
+		return payload, request, err
 	case "ex_file_meta":
 		filename := valueOrDefault(params, "filename", "US_stock.dat")
 		request := map[string]any{"filename": filename}
@@ -3022,6 +3381,42 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 			}, nil
 		})
 		return payload, request, err
+	case "mac_server_info":
+		request := map[string]any{}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			reply, err := client.MACServerInfo()
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"field", "value"},
+				rows:    rowsFromMACServerInfo(reply),
+				raw:     reply,
+			}, nil
+		})
+		return payload, request, err
+	case "mac_kline_offset":
+		offset, err := parseUint32Value(params, "offset", 0)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		count, err := parseUint32Value(params, "count", gotdx.DefaultMACKLineOffsetCount)
+		if err != nil {
+			return queryPayload{}, nil, err
+		}
+		request := map[string]any{"offset": offset, "count": count}
+		payload, err := withMACClient(func(client *gotdx.Client) (queryPayload, error) {
+			reply, err := client.MACKLineOffset(offset, count)
+			if err != nil {
+				return queryPayload{}, err
+			}
+			return queryPayload{
+				columns: []string{"field", "value"},
+				rows:    rowsFromMACKLineOffset(reply),
+				raw:     reply,
+			}, nil
+		})
+		return payload, request, err
 	case "mac_file_list":
 		filename := valueOrDefault(params, "filename", "StockInfo.dat")
 		offset, err := parseUint32Value(params, "offset", 0)
@@ -3254,7 +3649,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 				return queryPayload{}, err
 			}
 			return queryPayload{
-				columns: []string{"datetime", "open", "high", "low", "close", "vol", "amount", "float_shares"},
+				columns: []string{"datetime", "open", "high", "low", "close", "vol", "amount", "float_shares", "turnover"},
 				rows:    rowsFromMACSymbolBars(list),
 				raw:     list,
 			}, nil
@@ -3311,7 +3706,7 @@ func runMethod(def methodDef, params map[string]string) (queryPayload, map[strin
 				return queryPayload{}, err
 			}
 			return queryPayload{
-				columns: []string{"datetime", "open", "high", "low", "close", "vol", "amount", "float_shares"},
+				columns: []string{"datetime", "open", "high", "low", "close", "vol", "amount", "float_shares", "turnover"},
 				rows:    rowsFromMACSymbolBars(list),
 				raw:     list,
 			}, nil
@@ -4400,6 +4795,50 @@ func rowsFromMACCapitalFlow(reply *proto.MACCapitalFlowReply) [][]string {
 	}}
 }
 
+func rowsFromMACServerInfo(reply *proto.MACServerInfoReply) [][]string {
+	if reply == nil {
+		return nil
+	}
+	return [][]string{
+		{"count", fmt.Sprintf("%d", reply.Count)},
+		{"flags", reply.FlagsHex},
+		{"tag", reply.Tag},
+		{"today", reply.Today},
+		{"ts1", fmt.Sprintf("%d", reply.TS1)},
+		{"sessions_1", formatMACTradingSessions(reply.Sessions1)},
+		{"sessions_2", formatMACTradingSessions(reply.Sessions2)},
+		{"flag", fmt.Sprintf("%d", reply.Flag)},
+		{"last_trading_day", reply.LastTradingDay},
+		{"ts2", fmt.Sprintf("%d", reply.TS2)},
+		{"last_trading_day_2", reply.LastTradingDay2},
+		{"ts3", fmt.Sprintf("%d", reply.TS3)},
+		{"market_param_1", fmt.Sprintf("%d", reply.MarketParam1)},
+		{"market_param_2", fmt.Sprintf("%d", reply.MarketParam2)},
+		{"extra", reply.ExtraHex},
+	}
+}
+
+func formatMACTradingSessions(sessions []proto.MACTradingSession) string {
+	parts := make([]string, 0, len(sessions))
+	for _, session := range sessions {
+		if session.OpenMinutes == 0 && session.CloseMinutes == 0 {
+			continue
+		}
+		parts = append(parts, session.Open+"-"+session.Close)
+	}
+	return strings.Join(parts, "; ")
+}
+
+func rowsFromMACKLineOffset(reply *proto.MACKLineOffsetReply) [][]string {
+	if reply == nil {
+		return nil
+	}
+	return [][]string{
+		{"total", fmt.Sprintf("%d", reply.Total)},
+		{"returned", fmt.Sprintf("%d", reply.Returned)},
+	}
+}
+
 func rowsFromMACFileList(reply *proto.MACFileListReply) [][]string {
 	if reply == nil {
 		return nil
@@ -4528,6 +4967,7 @@ func rowsFromMACSymbolBars(items []proto.MACSymbolBar) [][]string {
 			formatFloat(item.Vol),
 			formatFloat(item.Amount),
 			formatFloat(item.FloatShares),
+			formatFloat(item.Turnover),
 		})
 	}
 	return rows

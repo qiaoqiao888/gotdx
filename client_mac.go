@@ -20,6 +20,7 @@ const (
 	DefaultMACAuctionPage        uint32 = 500
 	DefaultMACMarketMonitorCount uint32 = 600
 	DefaultMACMarketMonitorPage  uint16 = 600
+	DefaultMACKLineOffsetCount   uint32 = 128000
 	defaultMACBoardSortType      uint16 = 14
 	defaultMACBoardSortOrder     uint16 = 1
 )
@@ -165,6 +166,21 @@ func (client *Client) GetMACCapitalFlow(market uint8, code string) (*proto.MACCa
 	obj := proto.NewMACCapitalFlow(&proto.MACCapitalFlowRequest{
 		Market: uint16(market),
 		Symbol: makeMACCode8Client(code),
+	})
+	return executeProtocol(client, obj)
+}
+
+// GetMACServerInfo 获取 MAC 服务端交易日时段与状态信息。
+func (client *Client) GetMACServerInfo() (*proto.MACServerInfoReply, error) {
+	obj := proto.NewMACServerInfo(nil)
+	return executeProtocol(client, obj)
+}
+
+// GetMACKLineOffset 获取 MAC K线偏移信息。
+func (client *Client) GetMACKLineOffset(offset uint32, count uint32) (*proto.MACKLineOffsetReply, error) {
+	obj := proto.NewMACKLineOffset(&proto.MACKLineOffsetRequest{
+		Offset: offset,
+		Count:  count,
 	})
 	return executeProtocol(client, obj)
 }
@@ -495,6 +511,25 @@ func (client *Client) MACCapitalFlow(market uint8, code string) (*proto.MACCapit
 	return client.GetMACCapitalFlow(market, code)
 }
 
+// MACServerInfo 获取 MAC 服务端交易日时段与状态信息。
+func (client *Client) MACServerInfo() (*proto.MACServerInfoReply, error) {
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+	return client.GetMACServerInfo()
+}
+
+// MACKLineOffset 获取 MAC K线偏移信息。
+func (client *Client) MACKLineOffset(offset uint32, count uint32) (*proto.MACKLineOffsetReply, error) {
+	if count == 0 {
+		count = DefaultMACKLineOffsetCount
+	}
+	if err := client.ConnectMAC(); err != nil {
+		return nil, err
+	}
+	return client.GetMACKLineOffset(offset, count)
+}
+
 // MACTransactionsWithDate 获取 MAC 分时成交，并可指定查询日期。
 func (client *Client) MACTransactionsWithDate(market uint8, code string, start uint32, count uint32, queryDate uint32) ([]proto.MACTransactionItem, error) {
 	if count == 0 {
@@ -649,7 +684,17 @@ func (client *Client) MACSymbolBars(market uint8, code string, period uint16, ti
 		currentStart += uint32(pageSize)
 		remaining -= uint32(pageSize)
 	}
+	applyMACSymbolBarTurnover(result)
 	return result, nil
+}
+
+func applyMACSymbolBarTurnover(items []proto.MACSymbolBar) {
+	for i := range items {
+		if items[i].FloatShares <= 0 || items[i].Vol <= 0 {
+			continue
+		}
+		items[i].Turnover = round2(items[i].Vol / (items[i].FloatShares * 10000) * 100)
+	}
 }
 
 func makeMACCode8Client(code string) [8]byte {

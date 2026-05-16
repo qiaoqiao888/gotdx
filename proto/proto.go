@@ -75,6 +75,7 @@ const (
 	KMSG_EXHISTORYTICKCHART     = 0x248c // 扩展市场历史分时图
 	KMSG_EXCHARTSAMPLING        = 0x254d // 扩展市场抽样图
 	KMSG_EXMAPPING2562          = 0x2562 // 扩展市场映射信息
+	KMSG_MACSERVERINFO          = 0x120f // MAC: 服务端交易日时段
 	KMSG_MACFILELIST            = 0x1215 // MAC: 文件列表
 	KMSG_MACFILEDOWNLOAD        = 0x1217 // MAC: 文件下载
 	KMSG_EXBOARDLIST            = 0x1231 // 扩展市场板块榜单
@@ -89,6 +90,7 @@ const (
 	KMSG_MACSYMBOLBARS          = 0x122e // MAC: 统一K线
 	KMSG_MACAUCTION             = 0x123d // MAC: 竞价
 	KMSG_MACTICKCHARTS          = 0x123e // MAC: 多日分时
+	KMSG_MACKLINEOFFSET         = 0x124a // MAC: K线偏移信息
 	KMSG_CLIENT264B             = 0x264b // 客户端信息264B
 	KMSG_CLIENT26AC             = 0x26ac // 客户端信息26AC
 	KMSG_CLIENT26AD             = 0x26ad // 客户端信息26AD

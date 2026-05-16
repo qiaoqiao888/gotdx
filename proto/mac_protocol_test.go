@@ -123,6 +123,86 @@ func TestMACBoardListParseResponse(t *testing.T) {
 	}
 }
 
+func TestMACServerInfoBuildRequestAndParseResponse(t *testing.T) {
+	msg := NewMACServerInfo(nil)
+
+	raw := mustBuildRequest(t, msg)
+	header := readExReqHeader(t, raw)
+	if header.Head != 0x01 || binary.LittleEndian.Uint16(raw[10:12]) != KMSG_MACSERVERINFO {
+		t.Fatalf("unexpected request header: head=%#x method=%#x", header.Head, binary.LittleEndian.Uint16(raw[10:12]))
+	}
+	if len(raw[12:]) != 68 || raw[12] != 0x04 || raw[15] != 0x31 || raw[24] != 0x00 || raw[25] != 0x27 {
+		t.Fatalf("unexpected mac server info payload: %x", raw[12:])
+	}
+
+	buf := new(bytes.Buffer)
+	must := func(v interface{}) {
+		if err := binary.Write(buf, binary.LittleEndian, v); err != nil {
+			t.Fatal(err)
+		}
+	}
+	must(uint16(1))
+	buf.Write([]byte{1, 2, 3, 4, 5, 6, 7, 8})
+	buf.Write([]byte{'-', '1', 0})
+	buf.Write(make([]byte, 9))
+	must(uint32(20260516))
+	must(uint32(93000))
+	for _, value := range []uint16{570, 690, 780, 900, 0, 0, 0, 0} {
+		must(value)
+	}
+	for _, value := range []uint16{540, 660, 1260, 1380, 0, 0, 0, 0} {
+		must(value)
+	}
+	buf.WriteByte(7)
+	must(uint32(20260515))
+	must(uint32(1))
+	must(uint32(20260514))
+	must(uint32(2))
+	must(uint32(10))
+	must(uint32(20))
+	buf.Write([]byte{0xaa, 0xbb})
+
+	if err := msg.ParseResponse(&RespHeader{}, buf.Bytes()); err != nil {
+		t.Fatalf("parse response failed: %v", err)
+	}
+	reply := msg.Response()
+	if reply.Count != 1 || reply.FlagsHex != "0102030405060708" || reply.Tag != "-1" || reply.Today != "2026-05-16" {
+		t.Fatalf("unexpected reply header: %+v", reply)
+	}
+	if len(reply.Sessions1) != 4 || reply.Sessions1[0].Open != "9:30" || reply.Sessions1[1].Close != "15:00" {
+		t.Fatalf("unexpected sessions1: %+v", reply.Sessions1)
+	}
+	if reply.LastTradingDay != "2026-05-15" || reply.MarketParam1 != 10 || reply.MarketParam2 != 20 || reply.ExtraHex != "aabb" {
+		t.Fatalf("unexpected reply tail: %+v", reply)
+	}
+}
+
+func TestMACKLineOffsetBuildRequestAndParseResponse(t *testing.T) {
+	msg := NewMACKLineOffset(&MACKLineOffsetRequest{Offset: 3, Count: 128000})
+
+	raw := mustBuildRequest(t, msg)
+	header := readExReqHeader(t, raw)
+	if header.Head != 0x01 || binary.LittleEndian.Uint16(raw[10:12]) != KMSG_MACKLINEOFFSET {
+		t.Fatalf("unexpected request header: head=%#x method=%#x", header.Head, binary.LittleEndian.Uint16(raw[10:12]))
+	}
+	var req MACKLineOffsetRequest
+	if err := binary.Read(bytes.NewReader(raw[12:]), binary.LittleEndian, &req); err != nil {
+		t.Fatalf("read request failed: %v", err)
+	}
+	if req.Offset != 3 || req.Count != 128000 {
+		t.Fatalf("unexpected request: %+v", req)
+	}
+
+	payload := []byte{0x00, 0x01, 0xf4, 0x00, 0x02, 0x00, 0x00, 0x00}
+	if err := msg.ParseResponse(&RespHeader{}, payload); err != nil {
+		t.Fatalf("parse response failed: %v", err)
+	}
+	reply := msg.Response()
+	if reply.Total != 128000 || reply.Returned != 2 {
+		t.Fatalf("unexpected reply: %+v", reply)
+	}
+}
+
 func TestMACBoardMembersBuildRequestAndParseResponse(t *testing.T) {
 	boardCode, err := ExchangeMACBoardCode("880761")
 	if err != nil {
@@ -429,6 +509,55 @@ func TestMACBoardMembersQuotesDynamicSupportsSignedAndAliasFields(t *testing.T) 
 	if item.Values["annual_limit_up_days"].(int32) != -7 || item.Values["constant_neg_one"].(int32) != -1 {
 		t.Fatalf("unexpected signed dynamic values: %+v", item.Values)
 	}
+}
+
+func TestMACDynamicFieldMapAlignsLatestTDX(t *testing.T) {
+	bitmap := [20]byte{}
+	bits := []int{0x16, 0x37, 0x3e, 0x48, 0x73, 0x85, 0x8c, 0x8f}
+	for _, bit := range bits {
+		bitmap[bit/8] |= 1 << (bit % 8)
+	}
+
+	fields := activeMACDynamicFields(bitmap)
+	want := map[uint8]struct {
+		name   string
+		format string
+		alias  string
+	}{
+		0x16: {name: "board_strength", format: "float32", alias: "unknown_22"},
+		0x37: {name: "index_metric", format: "float32", alias: "unknown_55"},
+		0x3e: {name: "stock_class_code", format: "uint32", alias: "unknown_62"},
+		0x48: {name: "bid2_price", format: "float32", alias: "low_copy"},
+		0x73: {name: "ddx", format: "float32"},
+		0x85: {name: "ask5_price", format: "float32", alias: "avg_price_copy"},
+		0x8c: {name: "bid_ask_diff", format: "int32"},
+		0x8f: {name: "stock_rating", format: "float32"},
+	}
+
+	if len(fields) != len(bits) {
+		t.Fatalf("unexpected fields: %+v", fields)
+	}
+	for _, field := range fields {
+		expect, ok := want[field.Bit]
+		if !ok {
+			t.Fatalf("unexpected field bit: %+v", field)
+		}
+		if field.Name != expect.name || field.Format != expect.format {
+			t.Fatalf("unexpected field def for bit %#x: %+v", field.Bit, field)
+		}
+		if expect.alias != "" && !containsString(field.Aliases, expect.alias) {
+			t.Fatalf("missing alias %q for field %+v", expect.alias, field)
+		}
+	}
+}
+
+func containsString(values []string, target string) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
+	}
+	return false
 }
 
 func TestMACQuotesBuildRequestAndParseResponse(t *testing.T) {

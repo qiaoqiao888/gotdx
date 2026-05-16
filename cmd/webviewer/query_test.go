@@ -78,8 +78,15 @@ func TestMethodDefsIncludeNewComparisonMethods(t *testing.T) {
 		"mac_board_count",
 		"mac_board_members_quotes_dynamic",
 		"mac_quotes",
+		"mac_server_info",
+		"mac_kline_offset",
 		"mac_ex_board_count",
 		"mac_ex_quotes",
+		"goods_count",
+		"goods_varieties",
+		"goods_quotes",
+		"goods_kline",
+		"goods_history_transaction",
 	}
 	for _, key := range keys {
 		if !hasMethodDef(key) {
@@ -195,6 +202,23 @@ func TestRowsFromMACQuoteChart(t *testing.T) {
 	}
 	if len(rows[0]) != 5 || rows[0][0] != "09:30:00" || rows[0][3] != "1234" || rows[0][4] != "0.50" {
 		t.Fatalf("unexpected mac quote chart rows: %#v", rows)
+	}
+}
+
+func TestRowsFromMACSymbolBarsIncludesTurnover(t *testing.T) {
+	rows := rowsFromMACSymbolBars([]proto.MACSymbolBar{{
+		DateTime:    "2026-04-12 15:00:00",
+		Open:        10,
+		High:        11,
+		Low:         9,
+		Close:       10.5,
+		Vol:         100,
+		Amount:      1000,
+		FloatShares: 10000,
+		Turnover:    1.23,
+	}})
+	if len(rows) != 1 || len(rows[0]) != 9 || rows[0][8] != "1.23" {
+		t.Fatalf("unexpected mac symbol bars rows: %#v", rows)
 	}
 }
 

@@ -68,6 +68,7 @@ type MACSymbolBar struct {
 	Amount      float64
 	Vol         float64
 	FloatShares float64
+	Turnover    float64
 }
 
 func NewMACSymbolBars(req *MACSymbolBarsRequest) *MACSymbolBars {

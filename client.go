@@ -41,14 +41,16 @@ func NewMACEx(opts ...Option) *Client {
 }
 
 type Client struct {
-	conn     net.Conn
-	opt      *Options
-	complete chan bool
-	sending  chan bool
-	mu       sync.Mutex
-	mode     clientMode
-	main     *Client
-	ex       *Client
+	conn                net.Conn
+	opt                 *Options
+	complete            chan bool
+	sending             chan bool
+	mu                  sync.Mutex
+	mode                clientMode
+	main                *Client
+	ex                  *Client
+	decimalPoints       map[uint8]map[string]int8
+	decimalPointsLoaded map[uint8]bool
 }
 
 func (client *Client) CurrentAddress() string {

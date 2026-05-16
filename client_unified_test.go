@@ -117,6 +117,61 @@ func TestApplyTurnoverHelpers(t *testing.T) {
 	}
 }
 
+func TestApplyDecimalPointToQuotes(t *testing.T) {
+	decimals := map[stockKey]int8{{Market: types.MarketSZ.Uint8(), Code: "000001"}: 3}
+	quotes := []proto.SecurityQuote{{
+		Market:    types.MarketSZ.Uint8(),
+		Code:      "000001",
+		Close:     12.34,
+		Price:     12.34,
+		PreClose:  12.30,
+		LastClose: 12.30,
+		Open:      12.31,
+		High:      12.50,
+		Low:       12.20,
+		NegPrice:  12.10,
+		BidLevels: []proto.Level{{Price: 12.33}},
+		AskLevels: []proto.Level{{Price: 12.35}},
+		Bid1:      12.33,
+		Ask1:      12.35,
+	}}
+	applyDecimalPointToSecurityQuotes(quotes, decimals)
+	if quotes[0].Close != 1.234 || quotes[0].BidLevels[0].Price != 1.233 || quotes[0].Ask1 != 1.235 {
+		t.Fatalf("unexpected adjusted security quote: %+v", quotes[0])
+	}
+
+	zeroDecimal := []proto.QuoteListItem{{Market: types.MarketSH.Uint8(), Code: "000001", Close: 12.34}}
+	applyDecimalPointToQuoteList(zeroDecimal, map[stockKey]int8{{Market: types.MarketSH.Uint8(), Code: "000001"}: 0})
+	if zeroDecimal[0].Close != 1234 {
+		t.Fatalf("unexpected zero decimal adjustment: %+v", zeroDecimal[0])
+	}
+
+	items := []proto.QuoteListItem{{
+		Market:    types.MarketSZ.Uint8(),
+		Code:      "000001",
+		Close:     12.34,
+		PreClose:  12.30,
+		Open:      12.31,
+		High:      12.50,
+		Low:       12.20,
+		NegPrice:  12.10,
+		BidLevels: []proto.Level{{Price: 12.33}},
+		AskLevels: []proto.Level{{Price: 12.35}},
+	}}
+	applyDecimalPointToQuoteList(items, decimals)
+	if items[0].Close != 1.234 || items[0].BidLevels[0].Price != 1.233 {
+		t.Fatalf("unexpected adjusted quote list item: %+v", items[0])
+	}
+}
+
+func TestApplyMACSymbolBarTurnover(t *testing.T) {
+	items := []proto.MACSymbolBar{{Vol: 500000, FloatShares: 1000}}
+	applyMACSymbolBarTurnover(items)
+	if items[0].Turnover != 5 {
+		t.Fatalf("unexpected mac symbol bar turnover: %.2f", items[0].Turnover)
+	}
+}
+
 func TestRound2(t *testing.T) {
 	if got := round2(1.235); got != 1.24 {
 		t.Fatalf("unexpected rounded value: %.2f", got)
