@@ -3,15 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
 	client := exampleutil.NewMACClient()
 	defer client.Disconnect()
 
-	reply, err := client.MACCapitalFlow(gotdx.MarketSZ, "000001")
+	reply, err := client.MACCapitalFlow(types.MarketSZ.Uint8(), "000001")
 	if err != nil {
 		log.Fatalln(err)
 	}

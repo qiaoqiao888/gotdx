@@ -5,6 +5,7 @@ import (
 
 	"github.com/bensema/gotdx"
 	"github.com/bensema/gotdx/examples/internal/exampleutil"
+	"github.com/bensema/gotdx/types"
 )
 
 func main() {
@@ -12,7 +13,7 @@ func main() {
 	defer client.Disconnect()
 
 	reply, err := client.MACSymbolQuotes(
-		[]uint8{gotdx.MarketSZ, gotdx.MarketSH},
+		[]uint8{types.MarketSZ.Uint8(), types.MarketSH.Uint8()},
 		[]string{"000001", "600000"},
 		gotdx.DefaultMACSymbolQuotesFieldBitmap(),
 	)
